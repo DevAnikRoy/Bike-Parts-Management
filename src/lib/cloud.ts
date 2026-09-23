@@ -339,28 +339,38 @@ export async function cloudAddSupplier(
   shopId: string,
   input: Omit<Supplier, 'id' | 'shop_id' | 'created_at'>,
 ) {
-  const { error } = await client().from('suppliers').insert({
-    shop_id: shopId,
-    name: input.name,
-    phone: input.phone,
-    address: input.address,
-    note: input.note,
-  })
+  const { data, error } = await client()
+    .from('suppliers')
+    .insert({
+      shop_id: shopId,
+      name: input.name,
+      phone: input.phone,
+      address: input.address,
+      note: input.note,
+    })
+    .select('id')
+    .single()
   fail(error)
+  return String(data.id)
 }
 
 export async function cloudAddCustomer(
   shopId: string,
   input: Omit<Customer, 'id' | 'shop_id' | 'created_at'>,
 ) {
-  const { error } = await client().from('customers').insert({
-    shop_id: shopId,
-    name: input.name,
-    phone: input.phone,
-    address: input.address,
-    note: input.note,
-  })
+  const { data, error } = await client()
+    .from('customers')
+    .insert({
+      shop_id: shopId,
+      name: input.name,
+      phone: input.phone,
+      address: input.address,
+      note: input.note,
+    })
+    .select('id')
+    .single()
   fail(error)
+  return String(data.id)
 }
 
 export async function cloudReceivePurchase(opts: {

@@ -1,0 +1,15 @@
+---
+description: After finishing a task, update docs/STATUS.md and ROADMAP so progress stays recorded
+alwaysApply: true
+---
+
+# Session close-out
+
+When you complete (or clearly abandon) a chunk of work:
+
+1. Open `docs/STATUS.md`.
+2. Refresh **Done**, **In progress**, **Next**, **Gaps / risks**.
+3. Add a short line under **Changelog** (`YYYY-MM-DD — …`).
+4. If a roadmap phase is complete, mark it in `docs/ROADMAP.md`.
+
+Do not invent fake progress. If blocked (e.g. user must run SQL / set Netlify env), put it under **Blocked on user** with the exact action.

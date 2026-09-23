@@ -924,6 +924,174 @@ table.simple td {
   }
 }
 
+/* ——— Counter flows ——— */
+
+.flow-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.flow-panel h2 {
+  margin-top: 0;
+}
+
+.sticky-panel {
+  position: relative;
+}
+
+.flow-total {
+  margin: 12px 0;
+  font-size: 1.15rem;
+}
+
+.flow-success {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.inline-box {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-sm);
+  background: #f4f8f5;
+  border: 1px dashed var(--border);
+}
+
+.scan-box {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.scan-box .btn {
+  flex-shrink: 0;
+  min-height: 48px;
+}
+
+.accent-btn {
+  background: var(--accent);
+}
+
+.memo-sheet {
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.memo-shop {
+  text-align: center;
+  font-family: var(--font-display);
+}
+
+.memo-meta {
+  text-align: center;
+  margin-top: 0;
+}
+
+.memo-totals {
+  font-size: 1.05rem;
+}
+
+.stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stock-table {
+  margin-top: 12px;
+}
+
+.stock-table .row-warn {
+  background: #fffaf6;
+}
+
+.desktop-only {
+  display: none;
+}
+
+.phone-only {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 1024px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .phone-only {
+    display: none;
+  }
+}
+
+.stock-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.stock-card.low {
+  border-color: #f0c3a8;
+  background: #fffaf6;
+}
+
+.stock-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.stock-qty {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.stock-qty span:first-child {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+@media (min-width: 900px) {
+  .flow-split {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .flow-split .card {
+    margin-bottom: 0;
+  }
+
+  .sticky-panel {
+    position: sticky;
+    top: 20px;
+  }
+
+  .flow-success {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cart-sheet {
+    box-shadow: var(--shadow);
+  }
+}
+
 @media print {
   .sidebar,
   .mobile-topbar,

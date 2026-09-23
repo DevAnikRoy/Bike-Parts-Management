@@ -37,8 +37,8 @@ interface DataCtx {
   error: string
   retry: () => void
   updateShop: (data: Partial<AppDatabase['shop']>) => Promise<void>
-  addSupplier: (input: Omit<Supplier, 'id' | 'shop_id' | 'created_at'>) => Promise<void>
-  addCustomer: (input: Omit<Customer, 'id' | 'shop_id' | 'created_at'>) => Promise<void>
+  addSupplier: (input: Omit<Supplier, 'id' | 'shop_id' | 'created_at'>) => Promise<string>
+  addCustomer: (input: Omit<Customer, 'id' | 'shop_id' | 'created_at'>) => Promise<string>
   receivePurchase: (opts: {
     supplier_id: string | null
     note: string
@@ -109,7 +109,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setError('')
     ;(async () => {
       try {
-        await seedSharedCatalog()
+        try {
+          await seedSharedCatalog()
+        } catch {
+          /* catalog seed soft-fail — shop data still loads */
+        }
         const next = await loadCloudDb(current.shop_id, current)
         if (!cancel) setDb(next)
       } catch (err) {
@@ -138,12 +142,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
           bump()
         },
         async addSupplier(input) {
-          dbApi.addSupplier(input)
+          const s = dbApi.addSupplier(input)
           bump()
+          return s.id
         },
         async addCustomer(input) {
-          dbApi.addCustomer(input)
+          const c = dbApi.addCustomer(input)
           bump()
+          return c.id
         },
         async receivePurchase(opts) {
           const result = dbApi.receivePurchase(opts)
@@ -174,12 +180,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
         await reloadCloud()
       },
       async addSupplier(input) {
-        await cloudAddSupplier(shopId, input)
+        const id = await cloudAddSupplier(shopId, input)
         await reloadCloud()
+        return id
       },
       async addCustomer(input) {
-        await cloudAddCustomer(shopId, input)
+        const id = await cloudAddCustomer(shopId, input)
         await reloadCloud()
+        return id
       },
       async receivePurchase(opts) {
         const result = await cloudReceivePurchase(opts)

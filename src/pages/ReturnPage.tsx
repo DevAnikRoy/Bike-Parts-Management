@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
@@ -15,6 +16,15 @@ export function ReturnPage() {
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    const pending = sessionStorage.getItem('bpm_return_code')
+    if (pending) {
+      setCode(pending)
+      setMode('serial')
+      sessionStorage.removeItem('bpm_return_code')
+    }
+  }, [])
 
   async function submit() {
     if (!user) return
@@ -50,7 +60,19 @@ export function ReturnPage() {
     <>
       <PageHeader title="রিটার্ন" />
 
-      {success && <div className="success-banner">{success}</div>}
+      {success && (
+        <div className="success-banner flow-success">
+          <strong>{success}</strong>
+          <div className="row">
+            <Link to="/stock" className="btn ghost">
+              স্টক দেখুন
+            </Link>
+            <Link to="/" className="btn ghost">
+              আজ
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="card">
         <p className="muted">

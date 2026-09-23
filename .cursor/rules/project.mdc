@@ -1,0 +1,41 @@
+---
+description: Bike Parts project constraints, free-stack rules, and how to keep STATUS updated
+alwaysApply: true
+---
+
+# Bike Parts Management — agent rules
+
+## Product
+
+- Audience: Bangladesh motorcycle parts shop owners (non-technical). UI Bangla-first.
+- Multi-tenant: one email login → one shop; RLS isolates shop data. Shared parts catalog.
+- Auth: email OTP only for free path. No paid SMS/Twilio. No paid email SaaS required (Gmail App Password SMTP OK).
+
+## Hard constraints (free)
+
+- Do not introduce paid APIs, paid SMTP products, paid analytics, or paid Cursor/Cloud features as requirements.
+- Prefer: Vite + React + Supabase free tier + Netlify free + browser APIs.
+- Never commit `.env`, service_role keys, or Gmail app passwords.
+- Never put developer setup (SQL/SMTP/App password steps) on shop-owner screens. Setup only when schema/auth is broken.
+
+## Agentic bookkeeping (required)
+
+After any meaningful change in a session, update `docs/STATUS.md`:
+
+1. Move items between Done / In progress / Next / Gaps.
+2. Note date and one-line what changed.
+3. If a phase finishes, tick it in `docs/ROADMAP.md`.
+
+Before starting large work, read `docs/STATUS.md` and `docs/ROADMAP.md` so you do not redo finished work or skip gaps.
+
+## UX direction
+
+- Desktop (≥1024px): sidebar + analytical dashboard + split panels for sale/purchase.
+- Phone: bottom nav + large taps + scan/search first.
+- Keep workshop green/orange + Anek Bangla / Noto Sans Bengali. No purple SaaS / cream-serif / broadsheet defaults.
+
+## Code habits
+
+- Prefer editing existing modules (`src/lib/data.tsx`, `cloud.ts`, pages) over new parallel systems.
+- Match existing patterns; no drive-by refactors.
+- Do not push to git or create commits unless the user asks.

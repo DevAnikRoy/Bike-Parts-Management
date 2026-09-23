@@ -662,18 +662,27 @@ begin
     v_name := 'মালিক';
   end if;
 
-  insert into shops (name, address, phone, invoice_prefix)
-  values ('আমার বাইক পার্টস', '', '', 'BPM')
-  returning id into v_shop;
+  begin
+    insert into shops (name, address, phone, invoice_prefix)
+    values ('আমার বাইক পার্টস', '', '', 'BPM')
+    returning id into v_shop;
 
-  insert into profiles (id, shop_id, name, phone, role)
-  values (v_uid, v_shop, v_name, '', 'owner');
+    insert into profiles (id, shop_id, name, phone, role)
+    values (v_uid, v_shop, v_name, '', 'owner');
 
-  insert into shop_counters (shop_id, purchase_n, sale_n)
-  values (v_shop, 0, 0)
-  on conflict (shop_id) do nothing;
+    insert into shop_counters (shop_id, purchase_n, sale_n)
+    values (v_shop, 0, 0)
+    on conflict (shop_id) do nothing;
 
-  return jsonb_build_object('shop_id', v_shop, 'created', true);
+    return jsonb_build_object('shop_id', v_shop, 'created', true);
+  exception
+    when unique_violation then
+      select shop_id into v_shop from profiles where id = v_uid;
+      if v_shop is null then
+        raise;
+      end if;
+      return jsonb_build_object('shop_id', v_shop, 'created', false);
+  end;
 end;
 $$;
 

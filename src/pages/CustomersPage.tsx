@@ -33,7 +33,11 @@ export function CustomersPage() {
 
   return (
     <>
-      <PageHeader title="কাস্টমার" />
+      <header className="page-hero">
+        <PageHeader title="কাস্টমার" />
+        <p className="muted">বিক্রির সময় এই তালিকা থেকে বাছাই করা যাবে।</p>
+      </header>
+      <div className="flow-split">
       <div className="card">
         <h2>নতুন কাস্টমার</h2>
         <div className="field">
@@ -82,6 +86,7 @@ export function CustomersPage() {
             })}
           </div>
         )}
+      </div>
       </div>
     </>
   )

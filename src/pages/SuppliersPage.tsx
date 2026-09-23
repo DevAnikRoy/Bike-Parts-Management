@@ -33,7 +33,11 @@ export function SuppliersPage() {
 
   return (
     <>
-      <PageHeader title="সাপ্লায়ার" />
+      <header className="page-hero">
+        <PageHeader title="সাপ্লায়ার" />
+        <p className="muted">কেনার সময় এই তালিকা থেকে বাছাই করা যাবে।</p>
+      </header>
+      <div className="flow-split">
       <div className="card">
         <h2>নতুন সাপ্লায়ার</h2>
         <div className="field">
@@ -82,6 +86,7 @@ export function SuppliersPage() {
             })}
           </div>
         )}
+      </div>
       </div>
     </>
   )

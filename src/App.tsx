@@ -3,6 +3,7 @@ import { CloudSetup } from './components/CloudSetup'
 import { Layout } from './components/Layout'
 import { useAuth } from './lib/auth'
 import { useData } from './lib/data'
+import { isDatabaseSetupError } from './lib/errors'
 import { CustomersPage } from './pages/CustomersPage'
 import { HomePage } from './pages/HomePage'
 import { LabelsPage } from './pages/LabelsPage'
@@ -17,7 +18,7 @@ import { StockPage } from './pages/StockPage'
 import { SuppliersPage } from './pages/SuppliersPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user, ready, refresh } = useAuth()
+  const { user, ready, refresh, schemaError } = useAuth()
   const { loaded, error, retry } = useData()
   if (!ready || (user && !loaded)) {
     return (
@@ -27,17 +28,47 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     )
   }
   if (!user) return <Navigate to="/login" replace />
-  if (error || !user.shop_id) {
+
+  const setupMsg = !user.shop_id ? schemaError || error || 'ডাটাবেস প্রস্তুত নয়' : error
+  if (setupMsg) {
+    if (isDatabaseSetupError(setupMsg) || (!user.shop_id && isDatabaseSetupError(schemaError))) {
+      return (
+        <div className="card">
+          <h2>সেটআপ বাকি</h2>
+          <p className="muted">{setupMsg}</p>
+          <CloudSetup
+            showSql
+            onRetry={() => {
+              void refresh().then(() => retry())
+            }}
+          />
+        </div>
+      )
+    }
+    if (!user.shop_id) {
+      return (
+        <div className="card">
+          <h2>দোকান খোলা যায়নি</h2>
+          <p className="muted">{setupMsg}</p>
+          <button
+            type="button"
+            className="btn block"
+            onClick={() => {
+              void refresh().then(() => retry())
+            }}
+          >
+            আবার চেষ্টা
+          </button>
+        </div>
+      )
+    }
     return (
       <div className="card">
-        <h2>সেটআপ বাকি</h2>
-        <p className="muted">{error || 'ডাটাবেস প্রস্তুত নয়'}</p>
-        <CloudSetup
-          showSql
-          onRetry={() => {
-            void refresh().then(() => retry())
-          }}
-        />
+        <h2>ডাটা লোড হয়নি</h2>
+        <p className="muted">{error}</p>
+        <button type="button" className="btn block" onClick={() => retry()}>
+          আবার চেষ্টা
+        </button>
       </div>
     )
   }
@@ -141,6 +172,7 @@ export default function App() {
             </RequireAuth>
           }
         />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   )

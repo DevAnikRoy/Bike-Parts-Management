@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { useData } from '../lib/data'
 
@@ -16,11 +17,14 @@ export function LabelsPage() {
 
   return (
     <>
-      <PageHeader title="লেবেল প্রিন্ট" />
+      <header className="page-hero no-print">
+        <PageHeader title="লেবেল" />
+        <p className="muted">কেনার পর তৈরি কোড স্টিকার প্রিন্ট করুন।</p>
+      </header>
 
       <div className="card no-print">
         <p className="muted">
-          কেনার সময় তৈরি হওয়া QR/কোড স্টিকার প্রিন্ট করুন। কোড কেটে পার্টের প্যাকেটে লাগান।
+          কোড কেটে পার্টের প্যাকেটে লাগান। শুধু স্টকে থাকা ইউনিট দেখাতে পারেন।
         </p>
         <label className="row" style={{ marginBottom: 12 }}>
           <input
@@ -37,7 +41,10 @@ export function LabelsPage() {
 
       {units.length === 0 ? (
         <div className="card empty">
-          এখনো কোনো সিরিয়াল কোড নেই। আগে সিরিয়ালাইজড পার্ট কিনুন।
+          <p>এখনো কোনো সিরিয়াল কোড নেই।</p>
+          <Link to="/purchase" className="btn" style={{ marginTop: 12 }}>
+            কিনলাম খুলুন
+          </Link>
         </div>
       ) : (
         <div

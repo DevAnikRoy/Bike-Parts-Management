@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { useData } from '../lib/data'
 import { lookupInDb, type LookupResult } from '../lib/queries'
@@ -6,14 +7,23 @@ import { formatDate, formatTk, statusBn } from '../lib/format'
 
 export function LookupPage() {
   const { db } = useData()
-  const [code, setCode] = useState('')
+  const [params] = useSearchParams()
+  const [code, setCode] = useState(() => params.get('q') ?? '')
   const [result, setResult] = useState<LookupResult>(null)
   const [searched, setSearched] = useState(false)
 
-  function search() {
-    setResult(lookupInDb(db, code))
+  function search(value = code) {
+    setResult(lookupInDb(db, value))
     setSearched(true)
   }
+
+  useEffect(() => {
+    const q = params.get('q')
+    if (!q) return
+    setCode(q)
+    setResult(lookupInDb(db, q))
+    setSearched(true)
+  }, [params, db])
 
   return (
     <>
@@ -33,7 +43,7 @@ export function LookupPage() {
               onKeyDown={(e) => e.key === 'Enter' && search()}
               placeholder="BP-XXXX বা 30410-KST-941"
             />
-            <button type="button" className="btn" onClick={search}>
+            <button type="button" className="btn" onClick={() => search()}>
               খুঁজুন
             </button>
           </div>
@@ -92,6 +102,18 @@ export function LookupPage() {
             </p>
           ) : (
             <p className="muted">এখনো বিক্রি হয়নি</p>
+          )}
+
+          {result.unit.status === 'sold' && (
+            <div className="row" style={{ marginTop: 12 }}>
+              <Link
+                to="/return"
+                className="btn"
+                onClick={() => sessionStorage.setItem('bpm_return_code', result.unit.unique_code)}
+              >
+                রিটার্ন নিন
+              </Link>
+            </div>
           )}
 
           <h2>হিস্ট্রি</h2>

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
@@ -8,8 +9,9 @@ import type { CartItem } from '../lib/types'
 
 export function SalePage() {
   const { user } = useAuth()
-  const { db, completeSale } = useData()
+  const { db, completeSale, addCustomer, retry } = useData()
   const [customerId, setCustomerId] = useState('')
+  const [partQ, setPartQ] = useState('')
   const [partId, setPartId] = useState('')
   const [qty, setQty] = useState(1)
   const [sellPrice, setSellPrice] = useState(0)
@@ -19,11 +21,27 @@ export function SalePage() {
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [saleId, setSaleId] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [showNewCustomer, setShowNewCustomer] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newPhone, setNewPhone] = useState('')
 
   const sale = saleId ? db.sales.find((s) => s.id === saleId) : null
-  const saleLines = saleId
-    ? db.sale_lines.filter((l) => l.sale_id === saleId)
-    : []
+  const saleLines = saleId ? db.sale_lines.filter((l) => l.sale_id === saleId) : []
+
+  const qtyParts = useMemo(() => {
+    const q = partQ.trim().toLowerCase()
+    return db.parts
+      .filter((p) => p.tracking_mode !== 'serialized')
+      .filter((p) => {
+        if (!q) return true
+        return (
+          p.name_bn.includes(partQ) ||
+          p.name.toLowerCase().includes(q) ||
+          p.oem_part_no.toLowerCase().includes(q)
+        )
+      })
+  }, [db.parts, partQ])
 
   function onPartChange(id: string) {
     setPartId(id)
@@ -69,13 +87,20 @@ export function SalePage() {
       setError('পার্ট বাছুন')
       return
     }
+    if (!Number.isFinite(qty) || qty < 1) {
+      setError('পরিমাণ ১ বা তার বেশি হতে হবে')
+      return
+    }
     const part = db.parts.find((p) => p.id === partId)!
     if (part.tracking_mode === 'serialized') {
       setError('এই পার্টে সিরিয়াল/কোড স্ক্যান করতে হবে')
       return
     }
     const bal = db.stock_balances.find((b) => b.part_id === partId)
-    if (!bal || bal.qty < qty) {
+    const inCart = cart
+      .filter((c) => c.part_id === partId && !c.stock_unit_id)
+      .reduce((s, c) => s + c.qty, 0)
+    if (!bal || bal.qty < inCart + qty) {
       setError('পর্যাপ্ত স্টক নেই')
       return
     }
@@ -91,12 +116,39 @@ export function SalePage() {
     setQty(1)
   }
 
+  async function createCustomer(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    if (!newName.trim() || !newPhone.trim()) {
+      setError('কাস্টমারের নাম ও ফোন দিন')
+      return
+    }
+    setBusy(true)
+    try {
+      const id = await addCustomer({
+        name: newName.trim(),
+        phone: newPhone.trim(),
+        address: '',
+        note: '',
+      })
+      setCustomerId(id)
+      setShowNewCustomer(false)
+      setNewName('')
+      setNewPhone('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'কাস্টমার সেভ হয়নি')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function checkout() {
     if (!user) return
     setError('')
+    setBusy(true)
     try {
       const sub = cart.reduce((s, c) => s + c.qty * c.sell_price, 0)
-      const sale = await completeSale({
+      const saleRow = await completeSale({
         customer_id: customerId || null,
         note,
         discount,
@@ -104,19 +156,29 @@ export function SalePage() {
         items: cart,
         user_id: user.id,
       })
-      setSaleId(sale.id)
+      setSaleId(saleRow.id)
       setCart([])
       setDiscount(0)
       setNote('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'বিক্রি ব্যর্থ')
+    } finally {
+      setBusy(false)
     }
   }
 
   const subtotal = cart.reduce((s, c) => s + c.qty * c.sell_price, 0)
+  const due = Math.max(0, subtotal - discount)
 
   if (saleId && !sale) {
-    return <p className="muted" style={{ marginTop: 24 }}>মেমো লোড হচ্ছে...</p>
+    return (
+      <div className="card">
+        <p className="muted">মেমো লোড হচ্ছে...</p>
+        <button type="button" className="btn ghost" onClick={() => setSaleId(null)}>
+          বাতিল করে নতুন বিক্রি
+        </button>
+      </div>
+    )
   }
 
   if (sale) {
@@ -126,11 +188,25 @@ export function SalePage() {
     return (
       <>
         <PageHeader title="ক্যাশমেমো" />
-        <div className="success-banner">বিক্রি হয়েছে ✓</div>
-        <div className="card" id="memo">
-          <h2 style={{ textAlign: 'center' }}>{db.shop.name}</h2>
-          <p className="muted" style={{ textAlign: 'center', marginTop: 0 }}>
-            {db.shop.address} · {db.shop.phone}
+        <div className="success-banner flow-success">
+          <strong>বিক্রি হয়েছে</strong>
+          <div className="row">
+            <button type="button" className="btn" onClick={() => window.print()}>
+              প্রিন্ট
+            </button>
+            <button type="button" className="btn ghost" onClick={() => setSaleId(null)}>
+              নতুন বিক্রি
+            </button>
+            <Link to="/" className="btn ghost">
+              আজকের হিসাব
+            </Link>
+          </div>
+        </div>
+        <div className="card memo-sheet" id="memo">
+          <h2 className="memo-shop">{db.shop.name}</h2>
+          <p className="muted memo-meta">
+            {db.shop.address}
+            {db.shop.phone ? ` · ${db.shop.phone}` : ''}
           </p>
           <p>
             <strong>মেমো:</strong> {sale.invoice_no}
@@ -168,7 +244,7 @@ export function SalePage() {
               </tbody>
             </table>
           </div>
-          <p>
+          <p className="memo-totals">
             <strong>মোট:</strong> {formatTk(sale.total)}
             {sale.discount > 0 && (
               <>
@@ -179,18 +255,6 @@ export function SalePage() {
             <br />
             <strong>পরিশোধ:</strong> {formatTk(sale.paid)}
           </p>
-          <div className="row no-print">
-            <button type="button" className="btn" onClick={() => window.print()}>
-              প্রিন্ট
-            </button>
-            <button
-              type="button"
-              className="btn ghost"
-              onClick={() => setSaleId(null)}
-            >
-              নতুন বিক্রি
-            </button>
-          </div>
         </div>
       </>
     )
@@ -198,46 +262,97 @@ export function SalePage() {
 
   return (
     <>
-      <PageHeader title="বিক্রি করলাম" />
+      <header className="page-hero">
+        <PageHeader title="বিক্রি" />
+        <p className="muted">আগে কোড স্ক্যান করুন। সাধারণ পার্ট পরে যোগ করা যাবে।</p>
+      </header>
 
-      <div className="card">
-        <div className="field">
-          <label>কাস্টমার (ঐচ্ছিক)</label>
-          <select value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-            <option value="">— বাছাই করুন —</option>
-            {db.customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.phone})
-              </option>
-            ))}
-          </select>
+      {db.parts.length === 0 && (
+        <div className="card">
+          <p className="err">পার্ট ক্যাটালগ এখনো আসেনি।</p>
+          <button type="button" className="btn block" onClick={() => retry()}>
+            ক্যাটালগ আবার লোড
+          </button>
         </div>
+      )}
 
-        <div className="field">
-          <label>সিরিয়াল / QR কোড স্ক্যান বা লিখুন</label>
-          <div className="row">
-            <input
-              style={{ flex: 1 }}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="BP-XXXX"
-              onKeyDown={(e) => e.key === 'Enter' && addByCode()}
-            />
+      <div className="flow-split">
+        <section className="card flow-panel">
+          <h2>পার্ট যোগ</h2>
+
+          <div className="field">
+            <label>কাস্টমার (ঐচ্ছিক)</label>
+            <select value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
+              <option value="">— বাছাই করুন —</option>
+              {db.customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.phone})
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="text-link"
+              style={{ marginTop: 6, background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
+              onClick={() => setShowNewCustomer((v) => !v)}
+            >
+              {showNewCustomer ? 'বন্ধ' : '+ নতুন কাস্টমার'}
+            </button>
+          </div>
+
+          {showNewCustomer && (
+            <form className="inline-box" onSubmit={(e) => void createCustomer(e)}>
+              <div className="field">
+                <label>নাম</label>
+                <input value={newName} onChange={(e) => setNewName(e.target.value)} />
+              </div>
+              <div className="field">
+                <label>ফোন</label>
+                <input
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                  inputMode="tel"
+                />
+              </div>
+              <button type="submit" className="btn block" disabled={busy}>
+                কাস্টমার সেভ
+              </button>
+            </form>
+          )}
+
+          <div className="scan-box">
+            <div className="field" style={{ marginBottom: 0, flex: 1 }}>
+              <label>সিরিয়াল / QR কোড</label>
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="স্ক্যান বা লিখুন"
+                onKeyDown={(e) => e.key === 'Enter' && addByCode()}
+                autoFocus
+              />
+            </div>
             <button type="button" className="btn" onClick={addByCode}>
               যোগ
             </button>
           </div>
-        </div>
 
-        <hr style={{ border: 0, borderTop: '1px solid var(--border)', margin: '16px 0' }} />
+          <p className="muted" style={{ margin: '16px 0 8px' }}>
+            অথবা পরিমাণভিত্তিক পার্ট
+          </p>
 
-        <div className="field">
-          <label>অথবা সাধারণ পার্ট (পরিমাণ ভিত্তিক)</label>
-          <select value={partId} onChange={(e) => onPartChange(e.target.value)}>
-            <option value="">— পার্ট —</option>
-            {db.parts
-              .filter((p) => p.tracking_mode !== 'serialized')
-              .map((p) => {
+          <div className="field">
+            <label>খুঁজুন</label>
+            <input
+              value={partQ}
+              onChange={(e) => setPartQ(e.target.value)}
+              placeholder="নাম / OEM"
+            />
+          </div>
+          <div className="field">
+            <label>পার্ট</label>
+            <select value={partId} onChange={(e) => onPartChange(e.target.value)}>
+              <option value="">— পার্ট —</option>
+              {qtyParts.map((p) => {
                 const bal = db.stock_balances.find((b) => b.part_id === p.id)
                 return (
                   <option key={p.id} value={p.id}>
@@ -245,86 +360,91 @@ export function SalePage() {
                   </option>
                 )
               })}
-          </select>
-        </div>
-        <div className="row">
-          <div className="field" style={{ flex: 1 }}>
-            <label>পরিমাণ</label>
-            <input
-              type="number"
-              min={1}
-              value={qty}
-              onChange={(e) => setQty(Number(e.target.value))}
-            />
+            </select>
           </div>
-          <div className="field" style={{ flex: 1 }}>
-            <label>বিক্রির দাম</label>
+          <div className="row">
+            <div className="field" style={{ flex: 1 }}>
+              <label>পরিমাণ</label>
+              <input
+                type="number"
+                min={1}
+                value={qty}
+                onChange={(e) => setQty(Number(e.target.value))}
+              />
+            </div>
+            <div className="field" style={{ flex: 1 }}>
+              <label>বিক্রির দাম</label>
+              <input
+                type="number"
+                min={0}
+                value={sellPrice}
+                onChange={(e) => setSellPrice(Number(e.target.value))}
+              />
+            </div>
+          </div>
+          <button type="button" className="btn block" onClick={addByPart}>
+            কার্টে যোগ
+          </button>
+        </section>
+
+        <section className="card flow-panel sticky-panel cart-sheet">
+          <div className="card-head">
+            <h2>কার্ট</h2>
+            <span className="muted">{cart.length}</span>
+          </div>
+
+          {cart.length === 0 ? (
+            <div className="empty compact">কোড স্ক্যান করে শুরু করুন</div>
+          ) : (
+            <div className="list">
+              {cart.map((c, i) => (
+                <div key={`${c.part_id}-${c.unique_code ?? i}`} className="list-item">
+                  <div>
+                    <strong>{c.name}</strong>
+                    <span className="muted">
+                      {c.qty} × {formatTk(c.sell_price)}
+                      {c.unique_code ? ` · ${c.unique_code}` : ''}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    onClick={() => setCart((prev) => prev.filter((_, idx) => idx !== i))}
+                  >
+                    মুছুন
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="field" style={{ marginTop: 12 }}>
+            <label>ছাড় (৳)</label>
             <input
               type="number"
               min={0}
-              value={sellPrice}
-              onChange={(e) => setSellPrice(Number(e.target.value))}
+              value={discount}
+              onChange={(e) => setDiscount(Number(e.target.value))}
             />
           </div>
-        </div>
-        <button type="button" className="btn block" onClick={addByPart}>
-          কার্টে যোগ
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>কার্ট ({cart.length})</h2>
-        {cart.length === 0 ? (
-          <div className="empty">আগে স্টক থেকে পার্ট যোগ করুন</div>
-        ) : (
-          <div className="list">
-            {cart.map((c, i) => (
-              <div key={`${c.part_id}-${c.unique_code ?? i}`} className="list-item">
-                <div>
-                  <strong>{c.name}</strong>
-                  <span className="muted">
-                    {c.qty} × {formatTk(c.sell_price)}
-                    {c.unique_code ? ` · ${c.unique_code}` : ''}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="btn ghost"
-                  onClick={() => setCart((prev) => prev.filter((_, idx) => idx !== i))}
-                >
-                  মুছুন
-                </button>
-              </div>
-            ))}
+          <div className="field">
+            <label>নোট</label>
+            <input value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
-        )}
 
-        <div className="field" style={{ marginTop: 12 }}>
-          <label>ছাড় (৳)</label>
-          <input
-            type="number"
-            min={0}
-            value={discount}
-            onChange={(e) => setDiscount(Number(e.target.value))}
-          />
-        </div>
-        <div className="field">
-          <label>নোট</label>
-          <input value={note} onChange={(e) => setNote(e.target.value)} />
-        </div>
-
-        <p>
-          <strong>মোট: {formatTk(Math.max(0, subtotal - discount))}</strong>
-        </p>
-        {error && <p className="err">{error}</p>}
-        <button
-          type="button"
-          className="btn block"
-          disabled={!cart.length}
-          onClick={checkout}
-        >
-          বিক্রি সম্পন্ন করুন
-        </button>
+          <p className="flow-total">
+            মোট <strong>{formatTk(due)}</strong>
+          </p>
+          {error && <p className="err">{error}</p>}
+          <button
+            type="button"
+            className="btn block accent-btn"
+            disabled={!cart.length || busy}
+            onClick={() => void checkout()}
+          >
+            {busy ? 'হচ্ছে...' : 'বিক্রি সম্পন্ন'}
+          </button>
+        </section>
       </div>
     </>
   )

@@ -148,6 +148,29 @@ export function LoginPage() {
               style={{ marginTop: 8 }}
               disabled={busy}
               onClick={() => {
+                void (async () => {
+                  setError('')
+                  setInfo('')
+                  setBusy(true)
+                  try {
+                    await sendEmailOtp(email)
+                    setInfo('নতুন কোড পাঠানো হয়েছে।')
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'কোড পাঠানো যায়নি')
+                  } finally {
+                    setBusy(false)
+                  }
+                })()
+              }}
+            >
+              আবার কোড পাঠান
+            </button>
+            <button
+              type="button"
+              className="btn ghost block"
+              style={{ marginTop: 8 }}
+              disabled={busy}
+              onClick={() => {
                 setStep('email')
                 setCode('')
                 setError('')

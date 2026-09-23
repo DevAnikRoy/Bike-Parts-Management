@@ -23,18 +23,20 @@ Supabase সেট থাকলে লগইন **ইমেইল OTP** (ফ্�
 
 ## Netlify ডিপ্লয়
 
-GitHub-এ পুশ করলে Netlify নিজে বিল্ড করে। `netlify.toml`-এ কমান্ড `npm run build`, পাবলিশ `dist`, আর SPA রিডাইরেক্ট আছে। `.env` গিটে যায় না।
+লাইভ সাইট: https://bike-parts-management.netlify.app  
 
-Netlify → Site configuration → Environment variables-এ এই দুটো দিন, তারপর **Clear cache and deploy**:
+বিস্তারিত ধাপ: [`docs/DEPLOY.md`](docs/DEPLOY.md)
+
+GitHub `main`-এ পুশ করলে Netlify বিল্ড করে। `netlify.toml`-এ কমান্ড `npm run build`, পাবলিশ `dist`। `.env` গিটে যায় না।
+
+Netlify → Environment variables:
 
 ```
-VITE_SUPABASE_URL=https://baqobrvwblxfmzsiboec.supabase.co
-VITE_SUPABASE_ANON_KEY=<anon public key>
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
 ```
 
-এই দুটো না থাকলে লাইভ সাইট সুপাবেসে যুক্ত হবে না।
-
-সাইট লাইভ হওয়ার পর Supabase → Authentication → URL Configuration-এ Netlify-এর ঠিকানা (যেমন `https://your-site.netlify.app`) Site URL এবং Redirect URLs-এ যোগ করুন।
+তারপর Clear cache and deploy। Supabase Auth URL-এ `https://bike-parts-management.netlify.app` যোগ করুন।
 
 ## Supabase (ইমেইল OTP, আলাদা দোকান)
 
@@ -51,6 +53,14 @@ VITE_SUPABASE_ANON_KEY=...
 
 প্রথম সফল লগইনে ওই ইমেইলের জন্য একটা দোকান তৈরি হয়। স্টক, কেনা, বিক্রি Row Level Security দিয়ে শুধু সেই দোকানে থাকে। মোবাইল SMS ব্যবহার হয় না।
 
+## ডেমো স্ক্রিপ্ট (রিক্রুটার / শোকেস)
+
+1. ইমেইল A দিয়ে OTP লগইন → দোকানের নাম → সাপ্লায়ার → কিনলাম → বিক্রি → আজ ড্যাশবোর্ডে গ্রাফ  
+2. বের হয়ে ইমেইল B দিয়ে লগইন → A-এর স্টক দেখা যাবে না (আলাদা দোকান)  
+3. ল্যাপটপ (সাইডবার) ও ফোন (নিচের মেনু) দুটোতেই চেক করুন  
+
+অফলাইন স্কিমা চেক (ফ্রি): `npm run check:isolation`
+
 ## পার্টস ট্র্যাকিং
 
 | মোড | উদাহরণ | আচরণ |
@@ -63,5 +73,6 @@ VITE_SUPABASE_ANON_KEY=...
 
 - Vite + React + TypeScript
 - React Router
-- Netlify hosting
-- Supabase (ঐচ্ছিক Postgres + Auth + RLS)
+- Netlify hosting (free)
+- Supabase free (Postgres + Auth + RLS)
+- Agent progress: `docs/STATUS.md`, `docs/ROADMAP.md`, `AGENTS.md`

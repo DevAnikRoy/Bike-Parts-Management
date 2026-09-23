@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
@@ -12,9 +13,10 @@ interface DraftItem extends PurchaseItemInput {
 
 export function PurchasePage() {
   const { user } = useAuth()
-  const { db, receivePurchase } = useData()
+  const { db, receivePurchase, addSupplier, retry } = useData()
   const [supplierId, setSupplierId] = useState('')
   const [note, setNote] = useState('')
+  const [partQ, setPartQ] = useState('')
   const [partId, setPartId] = useState('')
   const [qty, setQty] = useState(1)
   const [buyPrice, setBuyPrice] = useState(0)
@@ -24,8 +26,24 @@ export function PurchasePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [lastUnits, setLastUnits] = useState<{ code: string; name: string }[]>([])
+  const [busy, setBusy] = useState(false)
+  const [showNewSupplier, setShowNewSupplier] = useState(false)
+  const [newSupName, setNewSupName] = useState('')
+  const [newSupPhone, setNewSupPhone] = useState('')
 
   const selected = db.parts.find((p) => p.id === partId)
+  const filteredParts = useMemo(() => {
+    const q = partQ.trim().toLowerCase()
+    if (!q) return db.parts
+    return db.parts.filter(
+      (p) =>
+        p.name_bn.includes(partQ) ||
+        p.name.toLowerCase().includes(q) ||
+        p.oem_part_no.toLowerCase().includes(q),
+    )
+  }, [db.parts, partQ])
+
+  const listTotal = items.reduce((s, it) => s + it.qty * it.buy_price, 0)
 
   function onPartChange(id: string) {
     setPartId(id)
@@ -39,7 +57,7 @@ export function PurchasePage() {
       setError('পার্ট বাছুন')
       return
     }
-    if (qty < 1) {
+    if (!Number.isFinite(qty) || qty < 1) {
       setError('পরিমাণ ১ বা তার বেশি হতে হবে')
       return
     }
@@ -71,12 +89,40 @@ export function PurchasePage() {
     ])
     setSerialText('')
     setQty(1)
+    setSuccess('')
+  }
+
+  async function createSupplierInline(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    if (!newSupName.trim() || !newSupPhone.trim()) {
+      setError('সাপ্লায়ারের নাম ও ফোন দিন')
+      return
+    }
+    setBusy(true)
+    try {
+      const id = await addSupplier({
+        name: newSupName.trim(),
+        phone: newSupPhone.trim(),
+        address: '',
+        note: '',
+      })
+      setSupplierId(id)
+      setShowNewSupplier(false)
+      setNewSupName('')
+      setNewSupPhone('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'সাপ্লায়ার সেভ হয়নি')
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function submit() {
     if (!user) return
     setError('')
     setSuccess('')
+    setBusy(true)
     try {
       const result = await receivePurchase({
         supplier_id: supplierId || null,
@@ -90,7 +136,7 @@ export function PurchasePage() {
         })),
         user_id: user.id,
       })
-      setSuccess(`কেনা সম্পন্ন! চালান ${result.invoice_no} · মোট ${formatTk(result.total)}`)
+      setSuccess(`স্টকে যোগ হয়েছে · চালান ${result.invoice_no} · ${formatTk(result.total)}`)
       setLastUnits(
         result.units.map((u) => ({
           code: u.unique_code,
@@ -101,149 +147,222 @@ export function PurchasePage() {
       setNote('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'কেনা ব্যর্থ')
+    } finally {
+      setBusy(false)
     }
   }
 
   return (
     <>
-      <PageHeader title="কিনলাম (স্টক যোগ)" />
+      <header className="page-hero">
+        <PageHeader title="কিনলাম" />
+        <p className="muted">সাপ্লায়ার থেকে স্টক ঢোকান। সিরিয়াল লাগলে কোড নিজে তৈরি হবে।</p>
+      </header>
 
-      {success && <div className="success-banner">{success}</div>}
-
-      <div className="card">
-        <div className="field">
-          <label>সাপ্লায়ার</label>
-          <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
-            <option value="">— বাছাই করুন (ঐচ্ছিক) —</option>
-            {db.suppliers.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.phone})
-              </option>
-            ))}
-          </select>
-          <p className="muted">নতুন সাপ্লায়ার যোগ করতে সাপ্লায়ার মেনুতে যান।</p>
+      {db.parts.length === 0 && (
+        <div className="card">
+          <p className="err">পার্ট ক্যাটালগ এখনো আসেনি — স্টকে যোগ করা যাবে না।</p>
+          <button type="button" className="btn block" onClick={() => retry()}>
+            ক্যাটালগ আবার লোড
+          </button>
         </div>
+      )}
 
-        <div className="field">
-          <label>পার্ট বাছুন</label>
-          <select value={partId} onChange={(e) => onPartChange(e.target.value)}>
-            <option value="">— পার্ট সিলেক্ট —</option>
-            {db.parts.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name_bn} ({p.oem_part_no}) · {trackingBn(p.tracking_mode)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {selected && (
-          <p className="muted">
-            ট্র্যাকিং: <span className="badge">{trackingBn(selected.tracking_mode)}</span>
-            {selected.tracking_mode === 'serialized' &&
-              ' — প্রতি পিসে আলাদা কোড লাগবে (অটো বা হাতে)'}
-          </p>
-        )}
-
-        <div className="row">
-          <div className="field" style={{ flex: 1 }}>
-            <label>পরিমাণ</label>
-            <input
-              type="number"
-              min={1}
-              value={qty}
-              onChange={(e) => setQty(Number(e.target.value))}
-            />
+      {success && (
+        <div className="success-banner flow-success">
+          <div>
+            <strong>{success}</strong>
           </div>
-          <div className="field" style={{ flex: 1 }}>
-            <label>কেনার দাম (৳)</label>
-            <input
-              type="number"
-              min={0}
-              value={buyPrice}
-              onChange={(e) => setBuyPrice(Number(e.target.value))}
-            />
+          <div className="row">
+            <Link to="/labels" className="btn ghost">
+              লেবেল প্রিন্ট
+            </Link>
+            <Link to="/sale" className="btn">
+              এখন বিক্রি
+            </Link>
           </div>
         </div>
+      )}
 
-        {selected && selected.tracking_mode !== 'qty_only' && (
-          <>
-            <div className="field">
-              <label>সিরিয়াল/কোড (প্রতি লাইনে একটা) — খালি রাখলে অটো QR কোড</label>
-              <textarea
-                value={serialText}
-                onChange={(e) => setSerialText(e.target.value)}
-                placeholder="BP-XXXX অথবা OEM সিরিয়াল"
+      <div className="flow-split">
+        <section className="card flow-panel">
+          <h2>পার্ট যোগ</h2>
+
+          <div className="field">
+            <label>সাপ্লায়ার</label>
+            <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
+              <option value="">— ঐচ্ছিক —</option>
+              {db.suppliers.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.phone})
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="text-link"
+              style={{ marginTop: 6, background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
+              onClick={() => setShowNewSupplier((v) => !v)}
+            >
+              {showNewSupplier ? 'বন্ধ করুন' : '+ নতুন সাপ্লায়ার এখানেই'}
+            </button>
+          </div>
+
+          {showNewSupplier && (
+            <form className="inline-box" onSubmit={(e) => void createSupplierInline(e)}>
+              <div className="field">
+                <label>নাম</label>
+                <input value={newSupName} onChange={(e) => setNewSupName(e.target.value)} />
+              </div>
+              <div className="field">
+                <label>ফোন</label>
+                <input
+                  value={newSupPhone}
+                  onChange={(e) => setNewSupPhone(e.target.value)}
+                  inputMode="tel"
+                />
+              </div>
+              <button type="submit" className="btn block" disabled={busy}>
+                সাপ্লায়ার সেভ
+              </button>
+            </form>
+          )}
+
+          <div className="field">
+            <label>পার্ট খুঁজুন</label>
+            <input
+              value={partQ}
+              onChange={(e) => setPartQ(e.target.value)}
+              placeholder="নাম বা OEM নম্বর"
+            />
+          </div>
+          <div className="field">
+            <label>পার্ট বাছুন</label>
+            <select value={partId} onChange={(e) => onPartChange(e.target.value)}>
+              <option value="">— সিলেক্ট —</option>
+              {filteredParts.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name_bn} · {p.oem_part_no}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selected && (
+            <p className="muted">
+              <span className="badge">{trackingBn(selected.tracking_mode)}</span>
+              {selected.tracking_mode === 'serialized' && ' · খালি রাখলে অটো কোড'}
+            </p>
+          )}
+
+          <div className="row">
+            <div className="field" style={{ flex: 1 }}>
+              <label>পরিমাণ</label>
+              <input
+                type="number"
+                min={1}
+                value={qty}
+                onChange={(e) => setQty(Number(e.target.value))}
               />
             </div>
-            {selected.tracking_mode === 'optional_serial' && (
-              <label className="row" style={{ marginBottom: 12 }}>
-                <input
-                  type="checkbox"
-                  checked={generateCodes}
-                  onChange={(e) => setGenerateCodes(e.target.checked)}
-                />
-                অটো স্টিকার কোড তৈরি করুন
-              </label>
-            )}
-          </>
-        )}
-
-        <button type="button" className="btn block" onClick={addItem}>
-          তালিকায় যোগ করুন
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>কেনার তালিকা ({items.length})</h2>
-        {items.length === 0 ? (
-          <div className="empty">এখনো কিছু যোগ হয়নি</div>
-        ) : (
-          <div className="list">
-            {items.map((it) => (
-              <div key={it.key} className="list-item">
-                <div>
-                  <strong>{it.part_name}</strong>
-                  <span className="muted">
-                    {it.qty} × {formatTk(it.buy_price)}
-                    {it.serials?.length
-                      ? ` · ${it.serials.length} সিরিয়াল`
-                      : it.generate_codes
-                        ? ' · অটো কোড'
-                        : ''}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="btn ghost"
-                  onClick={() => setItems((prev) => prev.filter((x) => x.key !== it.key))}
-                >
-                  মুছুন
-                </button>
-              </div>
-            ))}
+            <div className="field" style={{ flex: 1 }}>
+              <label>কেনার দাম (৳)</label>
+              <input
+                type="number"
+                min={0}
+                value={buyPrice}
+                onChange={(e) => setBuyPrice(Number(e.target.value))}
+              />
+            </div>
           </div>
-        )}
 
-        <div className="field" style={{ marginTop: 12 }}>
-          <label>নোট</label>
-          <input value={note} onChange={(e) => setNote(e.target.value)} />
-        </div>
+          {selected && selected.tracking_mode !== 'qty_only' && (
+            <>
+              <div className="field">
+                <label>সিরিয়াল (প্রতি লাইনে একটা)</label>
+                <textarea
+                  value={serialText}
+                  onChange={(e) => setSerialText(e.target.value)}
+                  placeholder="খালি = অটো কোড"
+                />
+              </div>
+              {selected.tracking_mode === 'optional_serial' && (
+                <label className="row" style={{ marginBottom: 12 }}>
+                  <input
+                    type="checkbox"
+                    checked={generateCodes}
+                    onChange={(e) => setGenerateCodes(e.target.checked)}
+                  />
+                  অটো স্টিকার কোড
+                </label>
+              )}
+            </>
+          )}
 
-        {error && <p className="err">{error}</p>}
+          <button type="button" className="btn block" onClick={addItem}>
+            তালিকায় যোগ
+          </button>
+        </section>
 
-        <button
-          type="button"
-          className="btn block"
-          disabled={!items.length}
-          onClick={submit}
-        >
-          স্টকে যোগ করুন
-        </button>
+        <section className="card flow-panel sticky-panel">
+          <div className="card-head">
+            <h2>কেনার তালিকা</h2>
+            <span className="muted">{items.length} লাইন</span>
+          </div>
+
+          {items.length === 0 ? (
+            <div className="empty compact">বাঁদিক থেকে পার্ট যোগ করুন</div>
+          ) : (
+            <div className="list">
+              {items.map((it) => (
+                <div key={it.key} className="list-item">
+                  <div>
+                    <strong>{it.part_name}</strong>
+                    <span className="muted">
+                      {it.qty} × {formatTk(it.buy_price)}
+                      {it.generate_codes ? ' · অটো কোড' : ''}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    onClick={() => setItems((prev) => prev.filter((x) => x.key !== it.key))}
+                  >
+                    মুছুন
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="field" style={{ marginTop: 12 }}>
+            <label>নোট</label>
+            <input value={note} onChange={(e) => setNote(e.target.value)} />
+          </div>
+
+          <p className="flow-total">
+            মোট <strong>{formatTk(listTotal)}</strong>
+          </p>
+          {error && <p className="err">{error}</p>}
+          <button
+            type="button"
+            className="btn block"
+            disabled={!items.length || busy}
+            onClick={() => void submit()}
+          >
+            {busy ? 'যোগ হচ্ছে...' : 'স্টকে যোগ করুন'}
+          </button>
+        </section>
       </div>
 
       {lastUnits.length > 0 && (
-        <div className="card">
-          <h2>নতুন কোড (লেবেল প্রিন্ট করুন)</h2>
+        <section className="card">
+          <div className="card-head">
+            <h2>নতুন কোড</h2>
+            <Link to="/labels" className="text-link">
+              লেবেল পেজ
+            </Link>
+          </div>
           <div className="list">
             {lastUnits.map((u) => (
               <div key={u.code} className="list-item">
@@ -254,8 +373,7 @@ export function PurchasePage() {
               </div>
             ))}
           </div>
-          <p className="muted">লেবেল মেনু থেকে প্রিন্ট করতে পারবেন।</p>
-        </div>
+        </section>
       )}
     </>
   )

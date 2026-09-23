@@ -39,7 +39,10 @@ export function SettingsPage() {
 
   return (
     <>
-      <PageHeader title="সেটিংস" />
+      <header className="page-hero">
+        <PageHeader title="দোকান" />
+        <p className="muted">মেমোতে যে নাম ও ঠিকানা ছাপা হবে।</p>
+      </header>
       <div className="card">
         <h2>দোকানের তথ্য</h2>
         <div className="field">

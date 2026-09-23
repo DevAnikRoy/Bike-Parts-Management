@@ -102,15 +102,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!supabase) return
     let ignore = false
-    supabase.auth.getSession().then(({ data }) => {
-      if (ignore) return
-      void hydrate(data.session)
-    }).catch(() => {
-      if (!ignore) setReady(true)
-    })
+    let chain: Promise<void> = Promise.resolve()
+    const runHydrate = (session: Session | null) => {
+      chain = chain
+        .then(async () => {
+          if (ignore) return
+          await hydrate(session)
+        })
+        .catch(() => {
+          /* keep queue alive */
+        })
+      return chain
+    }
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (ignore) return
+        void runHydrate(data.session)
+      })
+      .catch(() => {
+        if (!ignore) setReady(true)
+      })
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setTimeout(() => {
-        if (!ignore) void hydrate(session)
+        if (!ignore) void runHydrate(session)
       }, 0)
     })
     return () => {

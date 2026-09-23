@@ -33,7 +33,7 @@ export function toBanglaError(message: string) {
     return 'এই ইমেইল ঠিকানা গ্রহণ করা যায়নি'
   }
   if (/error sending confirmation email|error sending magic link/i.test(message)) {
-    return 'Supabase ইমেইল পাঠাতে পারেনি। Authentication → Emails → SMTP Settings-এ Gmail SMTP বসান। টাকা লাগে না। ধাপগুলো লগইন পেজে আছে।'
+    return 'কোড পাঠানো যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন, ইনবক্স ও স্প্যাম চেক করুন।'
   }
   return message
 }
