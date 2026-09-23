@@ -33,6 +33,60 @@ export function todaySalesTotal(db: AppDatabase) {
     .reduce((sum, s) => sum + (s.total - s.discount), 0)
 }
 
+export function monthSalesTotal(db: AppDatabase) {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = now.getMonth()
+  return db.sales
+    .filter((s) => {
+      const d = new Date(s.created_at)
+      return d.getFullYear() === y && d.getMonth() === m
+    })
+    .reduce((sum, s) => sum + (s.total - s.discount), 0)
+}
+
+/** Last 7 calendar days inclusive of today, oldest → newest. */
+export function salesLast7Days(db: AppDatabase) {
+  const days: { key: string; label: string; total: number }[] = []
+  const labels = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি']
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setHours(12, 0, 0, 0)
+    d.setDate(d.getDate() - i)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    days.push({
+      key,
+      label: labels[d.getDay()],
+      total: 0,
+    })
+  }
+  const map = new Map(days.map((x) => [x.key, x]))
+  for (const sale of db.sales) {
+    const k = dayKey(sale.created_at)
+    const row = map.get(k)
+    if (row) row.total += sale.total - sale.discount
+  }
+  return days
+}
+
+export function lowStockRows(db: AppDatabase) {
+  return db.stock_balances
+    .map((b) => {
+      const part = db.parts.find((p) => p.id === b.part_id)
+      if (!part || b.qty > part.reorder_level) return null
+      return { part, balance: b }
+    })
+    .filter(Boolean) as { part: Part; balance: StockBalance }[]
+}
+
+export function isFreshShop(db: AppDatabase) {
+  return (
+    db.purchases.length === 0 &&
+    db.sales.length === 0 &&
+    db.suppliers.length === 0
+  )
+}
+
 export function stockValue(db: AppDatabase) {
   return db.stock_balances.reduce((sum, b) => sum + b.qty * b.avg_buy_price, 0)
 }

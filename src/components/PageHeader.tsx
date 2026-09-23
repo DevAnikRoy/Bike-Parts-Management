@@ -8,7 +8,7 @@ interface Props {
 export function PageHeader({ title, backTo = '/' }: Props) {
   return (
     <div className="page-title">
-      <Link to={backTo} className="btn ghost no-print">
+      <Link to={backTo} className="btn ghost no-print mobile-only-back">
         ← ফিরে
       </Link>
       <h1>{title}</h1>

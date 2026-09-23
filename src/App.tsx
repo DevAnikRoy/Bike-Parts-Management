@@ -8,8 +8,8 @@ import { HomePage } from './pages/HomePage'
 import { LabelsPage } from './pages/LabelsPage'
 import { LoginPage } from './pages/LoginPage'
 import { LookupPage } from './pages/LookupPage'
+import { MorePage } from './pages/MorePage'
 import { PurchasePage } from './pages/PurchasePage'
-import { ReportsPage } from './pages/ReportsPage'
 import { ReturnPage } from './pages/ReturnPage'
 import { SalePage } from './pages/SalePage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -20,17 +20,25 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, ready, refresh } = useAuth()
   const { loaded, error, retry } = useData()
   if (!ready || (user && !loaded)) {
-    return <p className="muted" style={{ marginTop: 24 }}>লোড হচ্ছে...</p>
+    return (
+      <div className="empty">
+        <p className="muted">লোড হচ্ছে...</p>
+      </div>
+    )
   }
   if (!user) return <Navigate to="/login" replace />
   if (error || !user.shop_id) {
     return (
-      <CloudSetup
-        showSql
-        onRetry={() => {
-          void refresh().then(() => retry())
-        }}
-      />
+      <div className="card">
+        <h2>সেটআপ বাকি</h2>
+        <p className="muted">{error || 'ডাটাবেস প্রস্তুত নয়'}</p>
+        <CloudSetup
+          showSql
+          onRetry={() => {
+            void refresh().then(() => retry())
+          }}
+        />
+      </div>
     )
   }
   return children
@@ -90,12 +98,16 @@ export default function App() {
           }
         />
         <Route
-          path="/reports"
+          path="/more"
           element={
             <RequireAuth>
-              <ReportsPage />
+              <MorePage />
             </RequireAuth>
           }
+        />
+        <Route
+          path="/reports"
+          element={<Navigate to="/" replace />}
         />
         <Route
           path="/customers"
