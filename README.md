@@ -19,36 +19,37 @@ npm install
 npm run dev
 ```
 
-ডেমো লগইন: `01700000000` / `1234`
-
-ডিফল্টে ডেটা **ব্রাউজার localStorage**-এ থাকে (এক ডিভাইস)। এভাবেই Netlify-তে আপাতত চালানো যায়।
+Supabase সেট থাকলে লগইন **ইমেইল OTP** (ফ্রি, SMS নেই)। প্রতিটি ইমেইলের দোকানের ডাটা আলাদা। env না থাকলে ডেমো: `01700000000` / `1234` (ব্রাউজার localStorage)।
 
 ## Netlify ডিপ্লয়
 
-1. রিপো GitHub-এ পুশ করুন
-2. Netlify → New site from Git
-3. Build: `npm run build`, Publish: `dist`
-4. `netlify.toml` ইতিমধ্যে SPA redirect কনফিগ করা আছে
+GitHub-এ পুশ করলে Netlify নিজে বিল্ড করে। `netlify.toml`-এ কমান্ড `npm run build`, পাবলিশ `dist`, আর SPA রিডাইরেক্ট আছে। `.env` গিটে যায় না।
 
-অথবা:
+Netlify → Site configuration → Environment variables-এ এই দুটো দিন, তারপর **Clear cache and deploy**:
 
-```bash
-npm run build
-npx netlify deploy --prod --dir=dist
+```
+VITE_SUPABASE_URL=https://baqobrvwblxfmzsiboec.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon public key>
 ```
 
-## Supabase (ক্লাউড সিঙ্ক / ভবিষ্যৎ মোবাইল অ্যাপ)
+এই দুটো না থাকলে লাইভ সাইট সুপাবেসে যুক্ত হবে না।
+
+সাইট লাইভ হওয়ার পর Supabase → Authentication → URL Configuration-এ Netlify-এর ঠিকানা (যেমন `https://your-site.netlify.app`) Site URL এবং Redirect URLs-এ যোগ করুন।
+
+## Supabase (ইমেইল OTP, আলাদা দোকান)
 
 1. [Supabase](https://supabase.com) প্রজেক্ট তৈরি করুন
-2. `supabase/migrations/`-এর SQL ফাইলগুলো ক্রমে রান করুন
-3. Netlify / `.env`-এ সেট করুন:
+2. SQL Editor-এ শুধু `supabase/setup.sql` একবার রান করুন
+3. Authentication → URL Configuration-এ সাইটের ঠিকানা দিন
+4. Email Templates → Magic Link-এ `{{ .Token }}` রাখুন, যাতে ৬ সংখ্যার কোড যায়
+5. `.env`-এ সেট করুন:
 
 ```
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
 ```
 
-V1 অ্যাপ লজিক localStorage API (`src/lib/db.ts`) দিয়ে চলে। Supabase স্কিমা + RPC প্রস্তুত; ক্লায়েন্ট সুইচ পরের ধাপে একই UI দিয়ে করা যাবে।
+প্রথম সফল লগইনে ওই ইমেইলের জন্য একটা দোকান তৈরি হয়। স্টক, কেনা, বিক্রি Row Level Security দিয়ে শুধু সেই দোকানে থাকে। মোবাইল SMS ব্যবহার হয় না।
 
 ## পার্টস ট্র্যাকিং
 

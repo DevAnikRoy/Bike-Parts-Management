@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
+import { lookupInDb, type LookupResult } from '../lib/queries'
 import { formatDate, formatTk, statusBn } from '../lib/format'
 
 export function LookupPage() {
+  const { db } = useData()
   const [code, setCode] = useState('')
-  const [result, setResult] = useState<ReturnType<typeof dbApi.lookupCode>>(null)
+  const [result, setResult] = useState<LookupResult>(null)
   const [searched, setSearched] = useState(false)
 
   function search() {
-    setResult(dbApi.lookupCode(code))
+    setResult(lookupInDb(db, code))
     setSearched(true)
   }
 

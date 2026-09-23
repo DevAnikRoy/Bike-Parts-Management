@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
 import { formatTk, trackingBn } from '../lib/format'
 
 export function StockPage() {
-  const db = dbApi.getDb()
+  const { db } = useData()
   const [q, setQ] = useState('')
   const [brandId, setBrandId] = useState('')
   const [categoryId, setCategoryId] = useState('')

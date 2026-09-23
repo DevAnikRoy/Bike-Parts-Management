@@ -1,6 +1,6 @@
--- Seed brands, categories, models (Hero + Bajaj BD market ~2010+)
--- Parts catalog is also seeded in the web app (src/data/seed.ts) for local mode.
--- After creating a shop, insert catalog once globally.
+-- Optional partial catalog. Prefer supabase/setup.sql.
+-- The app inserts the full shared catalog on first email login (seed_catalog).
+-- Do not run this file together with setup.sql or brands will be duplicated.
 
 insert into brands (id, name, name_bn) values
   ('a1000000-0000-4000-8000-000000000001', 'Hero', 'হিরো'),

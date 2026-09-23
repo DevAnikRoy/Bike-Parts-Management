@@ -1,33 +1,34 @@
 import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
 import { formatDate } from '../lib/format'
 
 export function SuppliersPage() {
-  const [tick, setTick] = useState(0)
-  const db = dbApi.getDb()
-  void tick
+  const { db, addSupplier } = useData()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [error, setError] = useState('')
 
-  function add() {
+  async function add() {
     setError('')
     if (!name.trim() || !phone.trim()) {
       setError('নাম ও ফোন লাগবে')
       return
     }
-    dbApi.addSupplier({
-      name: name.trim(),
-      phone: phone.trim(),
-      address: address.trim(),
-      note: '',
-    })
-    setName('')
-    setPhone('')
-    setAddress('')
-    setTick((t) => t + 1)
+    try {
+      await addSupplier({
+        name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        note: '',
+      })
+      setName('')
+      setPhone('')
+      setAddress('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'সেভ হয়নি')
+    }
   }
 
   return (

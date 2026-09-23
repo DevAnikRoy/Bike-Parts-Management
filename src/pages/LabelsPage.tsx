@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
 
 export function LabelsPage() {
-  const db = dbApi.getDb()
+  const { db } = useData()
   const [onlyInStock, setOnlyInStock] = useState(true)
 
   const units = useMemo(() => {

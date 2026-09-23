@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../lib/auth'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
+import { stockValue } from '../lib/queries'
 import { formatTk } from '../lib/format'
 
 export function ReturnPage() {
   const { user } = useAuth()
-  const db = dbApi.getDb()
+  const { db, processReturn } = useData()
   const [mode, setMode] = useState<'serial' | 'qty'>('serial')
   const [code, setCode] = useState('')
   const [partId, setPartId] = useState('')
@@ -15,13 +16,13 @@ export function ReturnPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  function submit() {
+  async function submit() {
     if (!user) return
     setError('')
     setSuccess('')
     try {
       if (mode === 'serial') {
-        const rec = dbApi.processReturn({
+        const rec = await processReturn({
           unique_code: code.trim(),
           reason,
           user_id: user.id,
@@ -29,7 +30,7 @@ export function ReturnPage() {
         setSuccess(`রিটার্ন গ্রহণ হয়েছে ✓ কোড মিলেছে · ${rec.unique_code}`)
         setCode('')
       } else {
-        dbApi.processReturn({
+        await processReturn({
           part_id: partId,
           qty,
           reason,
@@ -154,7 +155,7 @@ export function ReturnPage() {
           </div>
         )}
         <p className="muted" style={{ marginBottom: 0 }}>
-          স্টক মূল্য (রেফ): {formatTk(dbApi.getStockValue())}
+          স্টক মূল্য (রেফ): {formatTk(stockValue(db))}
         </p>
       </div>
     </>

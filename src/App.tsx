@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { CloudSetup } from './components/CloudSetup'
 import { Layout } from './components/Layout'
 import { useAuth } from './lib/auth'
+import { useData } from './lib/data'
 import { CustomersPage } from './pages/CustomersPage'
 import { HomePage } from './pages/HomePage'
 import { LabelsPage } from './pages/LabelsPage'
@@ -15,8 +17,22 @@ import { StockPage } from './pages/StockPage'
 import { SuppliersPage } from './pages/SuppliersPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, ready, refresh } = useAuth()
+  const { loaded, error, retry } = useData()
+  if (!ready || (user && !loaded)) {
+    return <p className="muted" style={{ marginTop: 24 }}>লোড হচ্ছে...</p>
+  }
   if (!user) return <Navigate to="/login" replace />
+  if (error || !user.shop_id) {
+    return (
+      <CloudSetup
+        showSql
+        onRetry={() => {
+          void refresh().then(() => retry())
+        }}
+      />
+    )
+  }
   return children
 }
 

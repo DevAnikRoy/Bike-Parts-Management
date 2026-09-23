@@ -1,11 +1,12 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
 
 export function Layout() {
   const { user, logout } = useAuth()
+  const { db } = useData()
   const navigate = useNavigate()
-  const shop = dbApi.getDb().shop
+  const shop = db.shop
 
   return (
     <div className="app-shell">
@@ -21,8 +22,7 @@ export function Layout() {
             type="button"
             className="btn ghost"
             onClick={() => {
-              logout()
-              navigate('/login')
+              void logout().then(() => navigate('/login'))
             }}
           >
             বের হোন

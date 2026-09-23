@@ -9,3 +9,12 @@ export const isSupabaseConfigured = Boolean(url && key)
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(url!, key!)
   : null
+
+export function supabaseProjectRef() {
+  if (!url) return ''
+  try {
+    return new URL(url).hostname.split('.')[0] ?? ''
+  } catch {
+    return ''
+  }
+}

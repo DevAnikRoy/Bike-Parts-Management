@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
 import { formatTk } from '../lib/format'
+import { todaySalesTotal } from '../lib/queries'
 
 export function HomePage() {
-  const db = dbApi.getDb()
-  const today = dbApi.getTodaySalesTotal()
+  const { db } = useData()
+  const today = todaySalesTotal(db)
   const lowStock = db.stock_balances.filter((b) => {
     const part = db.parts.find((p) => p.id === b.part_id)
     return part && b.qty <= part.reorder_level

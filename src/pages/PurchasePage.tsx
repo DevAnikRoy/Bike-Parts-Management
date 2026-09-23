@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../lib/auth'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
 import { formatTk, trackingBn } from '../lib/format'
 import type { PurchaseItemInput } from '../lib/types'
 
@@ -12,8 +12,7 @@ interface DraftItem extends PurchaseItemInput {
 
 export function PurchasePage() {
   const { user } = useAuth()
-  const [tick, setTick] = useState(0)
-  const db = useMemo(() => dbApi.getDb(), [tick])
+  const { db, receivePurchase } = useData()
   const [supplierId, setSupplierId] = useState('')
   const [note, setNote] = useState('')
   const [partId, setPartId] = useState('')
@@ -74,12 +73,12 @@ export function PurchasePage() {
     setQty(1)
   }
 
-  function submit() {
+  async function submit() {
     if (!user) return
     setError('')
     setSuccess('')
     try {
-      const result = dbApi.receivePurchase({
+      const result = await receivePurchase({
         supplier_id: supplierId || null,
         note,
         items: items.map(({ part_id, qty, buy_price, serials, generate_codes }) => ({
@@ -100,7 +99,6 @@ export function PurchasePage() {
       )
       setItems([])
       setNote('')
-      setTick((t) => t + 1)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'কেনা ব্যর্থ')
     }

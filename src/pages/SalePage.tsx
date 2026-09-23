@@ -1,14 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../lib/auth'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
+import { findUnitByCode } from '../lib/queries'
 import { formatDate, formatTk } from '../lib/format'
 import type { CartItem } from '../lib/types'
 
 export function SalePage() {
   const { user } = useAuth()
-  const [tick, setTick] = useState(0)
-  const db = useMemo(() => dbApi.getDb(), [tick])
+  const { db, completeSale } = useData()
   const [customerId, setCustomerId] = useState('')
   const [partId, setPartId] = useState('')
   const [qty, setQty] = useState(1)
@@ -34,7 +34,7 @@ export function SalePage() {
 
   function addByCode() {
     setError('')
-    const unit = dbApi.findUnitByCode(code)
+    const unit = findUnitByCode(db, code)
     if (!unit) {
       setError('এই কোড স্টকে নেই')
       return
@@ -91,12 +91,12 @@ export function SalePage() {
     setQty(1)
   }
 
-  function checkout() {
+  async function checkout() {
     if (!user) return
     setError('')
     try {
       const sub = cart.reduce((s, c) => s + c.qty * c.sell_price, 0)
-      const sale = dbApi.completeSale({
+      const sale = await completeSale({
         customer_id: customerId || null,
         note,
         discount,
@@ -108,13 +108,16 @@ export function SalePage() {
       setCart([])
       setDiscount(0)
       setNote('')
-      setTick((t) => t + 1)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'বিক্রি ব্যর্থ')
     }
   }
 
   const subtotal = cart.reduce((s, c) => s + c.qty * c.sell_price, 0)
+
+  if (saleId && !sale) {
+    return <p className="muted" style={{ marginTop: 24 }}>মেমো লোড হচ্ছে...</p>
+  }
 
   if (sale) {
     const customer = sale.customer_id

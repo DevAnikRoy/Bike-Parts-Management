@@ -1,12 +1,13 @@
 import { PageHeader } from '../components/PageHeader'
-import { dbApi } from '../lib/db'
+import { useData } from '../lib/data'
 import { formatDate, formatTk } from '../lib/format'
+import { stockValue, todaySalesTotal, topSoldParts } from '../lib/queries'
 
 export function ReportsPage() {
-  const db = dbApi.getDb()
-  const todayTotal = dbApi.getTodaySalesTotal()
-  const stockValue = dbApi.getStockValue()
-  const top = dbApi.getTopSoldParts(8)
+  const { db } = useData()
+  const todayTotal = todaySalesTotal(db)
+  const stockValueAmount = stockValue(db)
+  const top = topSoldParts(db, 8)
   const recentSales = [...db.sales].reverse().slice(0, 8)
   const lowStock = db.stock_balances.filter((b) => {
     const part = db.parts.find((p) => p.id === b.part_id)
@@ -24,7 +25,7 @@ export function ReportsPage() {
         </div>
         <div className="stat">
           <div className="label">স্টক মূল্য (কেনা)</div>
-          <div className="value">{formatTk(stockValue)}</div>
+          <div className="value">{formatTk(stockValueAmount)}</div>
         </div>
         <div className="stat">
           <div className="label">মোট বিক্রি (সব)</div>
