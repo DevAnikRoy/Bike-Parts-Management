@@ -35,6 +35,25 @@ Authentication → URL Configuration:
 If the database was set up earlier, also run once in SQL Editor:  
 `supabase/migrations/006_ensure_shop_race.sql` (safe concurrent first-login). New projects: full `supabase/setup.sql` already includes this.
 
+Also run (existing projects) for logo + rate limits if not on latest `setup.sql`:
+
+- `supabase/migrations/007_shop_logo.sql`
+- `supabase/migrations/008_rate_limit.sql`
+
+## 3b. Rate limits (security)
+
+The app layers three free protections:
+
+| Layer | What |
+|-------|------|
+| **Browser** | OTP send cooldown (~45s), verify / sale / purchase / return / shop update limits (`src/lib/rateLimit.ts`) |
+| **Database** | `assert_shop_rate` before cloud writes (sale, purchase, return, shop, contacts) |
+| **Supabase Auth** | Built-in email OTP rate limits (dashboard) |
+
+**Supabase Dashboard (recommended):** Authentication → Rate Limits — keep email OTP limits on (default is fine for a free shop demo). Do not disable them.
+
+Shopkeeper-facing message when blocked: Bangla “অনেকবার চেষ্টা…” / countdown on the login button.
+
 ## 4. Email (free)
 
 Gmail App Password SMTP (already used locally). No paid email product required.  

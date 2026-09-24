@@ -48,6 +48,20 @@ function fail(error: { message: string } | null): asserts error is null {
   if (error) throw new Error(toBanglaError(error.message))
 }
 
+/** Server-side shop rate limit; no-ops if migration 008 not applied yet. */
+async function assertCloudRate(action: string, max: number, windowSec: number) {
+  const { error } = await client().rpc('assert_shop_rate', {
+    p_action: action,
+    p_max: max,
+    p_window_sec: windowSec,
+  })
+  if (!error) return
+  if (/could not find the function|schema cache|PGRST202|assert_shop_rate/i.test(error.message)) {
+    return
+  }
+  fail(error)
+}
+
 async function rows(table: string) {
   const { data, error } = await client().from(table).select('*').limit(2000)
   fail(error)
@@ -324,6 +338,7 @@ export async function cloudUpdateShop(
   shopId: string,
   data: Partial<AppDatabase['shop']>,
 ) {
+  await assertCloudRate('shop_update', 15, 300)
   const patch: Record<string, unknown> = {}
   if (data.name !== undefined) patch.name = data.name
   if (data.address !== undefined) patch.address = data.address
@@ -338,6 +353,7 @@ export async function cloudAddSupplier(
   shopId: string,
   input: Omit<Supplier, 'id' | 'shop_id' | 'created_at'>,
 ) {
+  await assertCloudRate('party_write', 25, 300)
   const { data, error } = await client()
     .from('suppliers')
     .insert({
@@ -357,6 +373,7 @@ export async function cloudAddCustomer(
   shopId: string,
   input: Omit<Customer, 'id' | 'shop_id' | 'created_at'>,
 ) {
+  await assertCloudRate('party_write', 25, 300)
   const { data, error } = await client()
     .from('customers')
     .insert({
@@ -373,11 +390,13 @@ export async function cloudAddCustomer(
 }
 
 export async function cloudDeleteSupplier(id: string) {
+  await assertCloudRate('party_write', 25, 300)
   const { error } = await client().from('suppliers').delete().eq('id', id)
   fail(error)
 }
 
 export async function cloudDeleteCustomer(id: string) {
+  await assertCloudRate('party_write', 25, 300)
   const { error } = await client().from('customers').delete().eq('id', id)
   fail(error)
 }
@@ -387,6 +406,7 @@ export async function cloudReceivePurchase(opts: {
   note: string
   items: PurchaseItemInput[]
 }) {
+  await assertCloudRate('purchase', 25, 60)
   const { data, error } = await client().rpc('receive_purchase', {
     p_supplier_id: opts.supplier_id,
     p_note: opts.note,
@@ -414,6 +434,7 @@ export async function cloudCompleteSale(opts: {
   paid: number
   items: CartItem[]
 }) {
+  await assertCloudRate('sale', 40, 60)
   const { data, error } = await client().rpc('complete_sale', {
     p_customer_id: opts.customer_id,
     p_note: opts.note,
@@ -444,6 +465,7 @@ export async function cloudProcessReturn(opts: {
   reason: string
   shopId: string
 }): Promise<ReturnRecord> {
+  await assertCloudRate('return', 20, 60)
   if (opts.unique_code) {
     const { data, error } = await client().rpc('process_return_serial', {
       p_unique_code: opts.unique_code,

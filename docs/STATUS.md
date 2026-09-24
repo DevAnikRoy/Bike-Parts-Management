@@ -55,6 +55,7 @@
 - [ ] Live 2-shop isolation smoke (closes industry DoD / goal) — one of the three paths above
 - [ ] Optional: apply `006_ensure_shop_race.sql`
 - [ ] **Existing Supabase project:** run `supabase/migrations/007_shop_logo.sql` (or re-run `setup.sql` alter) so logo saves to cloud
+- [ ] **Existing Supabase project:** run `supabase/migrations/008_rate_limit.sql` so server-side mutation rate limits apply
 - [ ] Git push to `main`
 
 ## Gaps / risks
@@ -78,3 +79,4 @@
 - 2026-09-24 — Stock list/grid toggle (persisted); hover preview opens to the right (no left clip)
 - 2026-09-24 — README rewritten in English for recruiters: niche, problem, plain-language stack & scope
 - 2026-09-24 — Larger stock photos (xl); shop SVG logo in Settings → sidebar/topbar + sale memo; migration `007_shop_logo.sql`
+- 2026-09-24 — Rate limits: client OTP/mutations + DB `assert_shop_rate` (`008_rate_limit.sql`); login cooldown UI

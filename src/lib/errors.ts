@@ -35,8 +35,10 @@ export function toBanglaError(message: string) {
   if (/failed to fetch|networkerror|network request failed|load failed|timeout/i.test(raw)) {
     return 'ইন্টারনেট সংযোগ নেই বা ধীর। নেট চেক করে আবার চেষ্টা করুন।'
   }
-  if (/rate limit|too many|over_email_send_rate/i.test(raw)) {
-    return 'ইমেইলের সীমা শেষ। কিছুক্ষণ পর আবার চেষ্টা করুন।'
+  if (/rate limit|too many|over_email_send_rate|RateLimitError/i.test(raw)) {
+    return /সেকেন্ড|মিনিট/.test(raw)
+      ? raw
+      : 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।'
   }
   if (/token has expired|otp_expired|invalid.*otp|invalid.*token/i.test(raw)) {
     return 'কোড ভুল বা মেয়াদ শেষ। নতুন কোড নিন।'

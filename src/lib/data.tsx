@@ -22,6 +22,7 @@ import {
 } from './cloud'
 import { dbApi } from './db'
 import { emptyDatabase } from './queries'
+import { RATE, takeRateLimit } from './rateLimit'
 import { isLocalDemoMode } from './runtime'
 import { isSupabaseConfigured } from './supabase'
 import { userFacingError } from './errors'
@@ -152,6 +153,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [ready, user, schemaError, nonce])
 
   const value = useMemo<DataCtx>(() => {
+    const shopKey = user?.shop_id || 'local'
     if (isLocalDemoMode) {
       const bump = () => setDb(dbApi.getDb())
       return {
@@ -160,38 +162,46 @@ export function DataProvider({ children }: { children: ReactNode }) {
         error,
         retry: () => setDb(dbApi.getDb()),
         async updateShop(data) {
+          takeRateLimit(`shop:${shopKey}:update`, RATE.shopUpdate)
           dbApi.updateShop(data)
           bump()
         },
         async addSupplier(input) {
+          takeRateLimit(`shop:${shopKey}:party`, RATE.partyWrite)
           const s = dbApi.addSupplier(input)
           bump()
           return s.id
         },
         async addCustomer(input) {
+          takeRateLimit(`shop:${shopKey}:party`, RATE.partyWrite)
           const c = dbApi.addCustomer(input)
           bump()
           return c.id
         },
         async deleteSupplier(id) {
+          takeRateLimit(`shop:${shopKey}:party`, RATE.partyWrite)
           dbApi.deleteSupplier(id)
           bump()
         },
         async deleteCustomer(id) {
+          takeRateLimit(`shop:${shopKey}:party`, RATE.partyWrite)
           dbApi.deleteCustomer(id)
           bump()
         },
         async receivePurchase(opts) {
+          takeRateLimit(`shop:${shopKey}:purchase`, RATE.purchase)
           const result = dbApi.receivePurchase(opts)
           bump()
           return result
         },
         async completeSale(opts) {
+          takeRateLimit(`shop:${shopKey}:sale`, RATE.sale)
           const sale = dbApi.completeSale(opts)
           bump()
           return sale
         },
         async processReturn(opts) {
+          takeRateLimit(`shop:${shopKey}:return`, RATE.returnAction)
           const rec = dbApi.processReturn(opts)
           bump()
           return rec
@@ -206,38 +216,46 @@ export function DataProvider({ children }: { children: ReactNode }) {
       error,
       retry: () => setNonce((n) => n + 1),
       async updateShop(data) {
+        takeRateLimit(`shop:${shopId}:update`, RATE.shopUpdate)
         await cloudUpdateShop(shopId, data)
         await reloadCloud()
       },
       async addSupplier(input) {
+        takeRateLimit(`shop:${shopId}:party`, RATE.partyWrite)
         const id = await cloudAddSupplier(shopId, input)
         await reloadCloud()
         return id
       },
       async addCustomer(input) {
+        takeRateLimit(`shop:${shopId}:party`, RATE.partyWrite)
         const id = await cloudAddCustomer(shopId, input)
         await reloadCloud()
         return id
       },
       async deleteSupplier(id) {
+        takeRateLimit(`shop:${shopId}:party`, RATE.partyWrite)
         await cloudDeleteSupplier(id)
         await reloadCloud()
       },
       async deleteCustomer(id) {
+        takeRateLimit(`shop:${shopId}:party`, RATE.partyWrite)
         await cloudDeleteCustomer(id)
         await reloadCloud()
       },
       async receivePurchase(opts) {
+        takeRateLimit(`shop:${shopId}:purchase`, RATE.purchase)
         const result = await cloudReceivePurchase(opts)
         await reloadCloud()
         return result
       },
       async completeSale(opts) {
+        takeRateLimit(`shop:${shopId}:sale`, RATE.sale)
         const sale = await cloudCompleteSale(opts)
         await reloadCloud()
         return sale
       },
       async processReturn(opts) {
+        takeRateLimit(`shop:${shopId}:return`, RATE.returnAction)
         const exact = opts.unique_code
           ? (db.stock_units.find(
               (u) => u.unique_code.toLowerCase() === opts.unique_code!.trim().toLowerCase(),

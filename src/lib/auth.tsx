@@ -11,6 +11,7 @@ import type { Session } from '@supabase/supabase-js'
 import { dbApi } from './db'
 import { toBanglaError } from './errors'
 import { isLocalDemoMode } from './runtime'
+import { otpSendKey, otpVerifyKey, RATE, takeRateLimit } from './rateLimit'
 import { isSupabaseConfigured, supabase } from './supabase'
 import type { AppUser } from './types'
 
@@ -143,20 +144,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isLocalDemoMode) {
       throw new Error('ইমেইলের কোড দিয়ে লগইন করুন')
     }
+    takeRateLimit(`local-login:${phoneOrEmail.trim().toLowerCase()}`, RATE.localLogin)
     const u = dbApi.login(phoneOrEmail, password)
     setUser(u)
   }, [])
 
   const sendEmailOtp = useCallback(async (email: string) => {
     if (!supabase) throw new Error('Supabase কনফিগার করা নেই')
+    const clean = email.trim().toLowerCase()
+    takeRateLimit(otpSendKey(clean), RATE.otpSend)
     const origin = window.location.origin
     let { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: clean,
       options: { shouldCreateUser: true, emailRedirectTo: origin },
     })
     if (error && /redirect/i.test(error.message)) {
       const second = await supabase.auth.signInWithOtp({
-        email,
+        email: clean,
         options: { shouldCreateUser: true },
       })
       error = second.error
@@ -167,8 +171,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const verifyEmailOtp = useCallback(
     async (email: string, token: string) => {
       if (!supabase) throw new Error('Supabase কনফিগার করা নেই')
+      const clean = email.trim().toLowerCase()
+      takeRateLimit(otpVerifyKey(clean), RATE.otpVerify)
       const { data, error } = await supabase.auth.verifyOtp({
-        email,
+        email: clean,
         token,
         type: 'email',
       })
