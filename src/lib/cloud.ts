@@ -373,6 +373,16 @@ export async function cloudAddCustomer(
   return String(data.id)
 }
 
+export async function cloudDeleteSupplier(id: string) {
+  const { error } = await client().from('suppliers').delete().eq('id', id)
+  fail(error)
+}
+
+export async function cloudDeleteCustomer(id: string) {
+  const { error } = await client().from('customers').delete().eq('id', id)
+  fail(error)
+}
+
 export async function cloudReceivePurchase(opts: {
   supplier_id: string | null
   note: string

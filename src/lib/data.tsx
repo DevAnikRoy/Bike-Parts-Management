@@ -12,6 +12,8 @@ import {
   cloudAddCustomer,
   cloudAddSupplier,
   cloudCompleteSale,
+  cloudDeleteCustomer,
+  cloudDeleteSupplier,
   cloudProcessReturn,
   cloudReceivePurchase,
   cloudUpdateShop,
@@ -40,6 +42,8 @@ interface DataCtx {
   updateShop: (data: Partial<AppDatabase['shop']>) => Promise<void>
   addSupplier: (input: Omit<Supplier, 'id' | 'shop_id' | 'created_at'>) => Promise<string>
   addCustomer: (input: Omit<Customer, 'id' | 'shop_id' | 'created_at'>) => Promise<string>
+  deleteSupplier: (id: string) => Promise<void>
+  deleteCustomer: (id: string) => Promise<void>
   receivePurchase: (opts: {
     supplier_id: string | null
     note: string
@@ -165,6 +169,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
           bump()
           return c.id
         },
+        async deleteSupplier(id) {
+          dbApi.deleteSupplier(id)
+          bump()
+        },
+        async deleteCustomer(id) {
+          dbApi.deleteCustomer(id)
+          bump()
+        },
         async receivePurchase(opts) {
           const result = dbApi.receivePurchase(opts)
           bump()
@@ -202,6 +214,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const id = await cloudAddCustomer(shopId, input)
         await reloadCloud()
         return id
+      },
+      async deleteSupplier(id) {
+        await cloudDeleteSupplier(id)
+        await reloadCloud()
+      },
+      async deleteCustomer(id) {
+        await cloudDeleteCustomer(id)
+        await reloadCloud()
       },
       async receivePurchase(opts) {
         const result = await cloudReceivePurchase(opts)

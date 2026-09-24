@@ -760,6 +760,16 @@ textarea {
   background: var(--danger);
 }
 
+.btn.ghost.danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+}
+
+.btn.ghost.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
 .btn.block {
   width: 100%;
 }

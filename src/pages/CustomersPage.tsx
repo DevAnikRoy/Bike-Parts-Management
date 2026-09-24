@@ -4,11 +4,12 @@ import { useData } from '../lib/data'
 import { formatDate } from '../lib/format'
 
 export function CustomersPage() {
-  const { db, addCustomer } = useData()
+  const { db, addCustomer, deleteCustomer } = useData()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [error, setError] = useState('')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   async function add() {
     setError('')
@@ -31,6 +32,19 @@ export function CustomersPage() {
     }
   }
 
+  async function remove(id: string, label: string) {
+    setError('')
+    if (!confirm(`“${label}” কাস্টমার মুছে ফেলবেন? পুরনো বিক্রির হিসাব থাকবে।`)) return
+    setDeletingId(id)
+    try {
+      await deleteCustomer(id)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'মুছা যায়নি')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
     <>
       <header className="page-hero">
@@ -38,55 +52,64 @@ export function CustomersPage() {
         <p className="muted">বিক্রির সময় এই তালিকা থেকে বাছাই করা যাবে।</p>
       </header>
       <div className="flow-split">
-      <div className="card">
-        <h2>নতুন কাস্টমার</h2>
-        <div className="field">
-          <label>নাম</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div className="field">
-          <label>ফোন</label>
-          <input
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            inputMode="tel"
-          />
-        </div>
-        <div className="field">
-          <label>ঠিকানা</label>
-          <input value={address} onChange={(e) => setAddress(e.target.value)} />
-        </div>
-        {error && <p className="err">{error}</p>}
-        <button type="button" className="btn block" onClick={add}>
-          সেভ করুন
-        </button>
-      </div>
-
-      <div className="card">
-        <h2>তালিকা ({db.customers.length})</h2>
-        {db.customers.length === 0 ? (
-          <div className="empty">এখনো কাস্টমার নেই</div>
-        ) : (
-          <div className="list">
-            {[...db.customers].reverse().map((c) => {
-              const sales = db.sales.filter((s) => s.customer_id === c.id)
-              return (
-                <div key={c.id} className="list-item">
-                  <div>
-                    <strong>{c.name}</strong>
-                    <span className="muted">
-                      {c.phone}
-                      {c.address ? ` · ${c.address}` : ''}
-                      <br />
-                      বিক্রি {sales.length} বার · যোগ {formatDate(c.created_at)}
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
+        <div className="card">
+          <h2>নতুন কাস্টমার</h2>
+          <div className="field">
+            <label>নাম</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
-        )}
-      </div>
+          <div className="field">
+            <label>ফোন</label>
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              inputMode="tel"
+            />
+          </div>
+          <div className="field">
+            <label>ঠিকানা</label>
+            <input value={address} onChange={(e) => setAddress(e.target.value)} />
+          </div>
+          {error && <p className="err">{error}</p>}
+          <button type="button" className="btn block" onClick={() => void add()}>
+            সেভ করুন
+          </button>
+        </div>
+
+        <div className="card">
+          <h2>তালিকা ({db.customers.length})</h2>
+          {error && <p className="err">{error}</p>}
+          {db.customers.length === 0 ? (
+            <div className="empty">এখনো কাস্টমার নেই</div>
+          ) : (
+            <div className="list">
+              {[...db.customers].reverse().map((c) => {
+                const sales = db.sales.filter((s) => s.customer_id === c.id)
+                return (
+                  <div key={c.id} className="list-item">
+                    <div>
+                      <strong>{c.name}</strong>
+                      <span className="muted">
+                        {c.phone}
+                        {c.address ? ` · ${c.address}` : ''}
+                        <br />
+                        বিক্রি {sales.length} বার · যোগ {formatDate(c.created_at)}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn ghost danger"
+                      disabled={deletingId === c.id}
+                      onClick={() => void remove(c.id, c.name)}
+                    >
+                      {deletingId === c.id ? 'মুছছে...' : 'মুছুন'}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

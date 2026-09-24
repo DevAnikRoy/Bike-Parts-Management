@@ -211,6 +211,28 @@ export const dbApi = {
     return c
   },
 
+  deleteSupplier(id: string) {
+    const db = loadDb()
+    const before = db.suppliers.length
+    db.suppliers = db.suppliers.filter((s) => s.id !== id)
+    if (db.suppliers.length === before) throw new Error('সাপ্লায়ার পাওয়া যায়নি')
+    for (const p of db.purchases) {
+      if (p.supplier_id === id) p.supplier_id = null
+    }
+    saveDb(db)
+  },
+
+  deleteCustomer(id: string) {
+    const db = loadDb()
+    const before = db.customers.length
+    db.customers = db.customers.filter((c) => c.id !== id)
+    if (db.customers.length === before) throw new Error('কাস্টমার পাওয়া যায়নি')
+    for (const s of db.sales) {
+      if (s.customer_id === id) s.customer_id = null
+    }
+    saveDb(db)
+  },
+
   receivePurchase(opts: {
     supplier_id: string | null
     note: string
