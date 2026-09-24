@@ -1,0 +1,699 @@
+{
+  "communities": {
+    "0": [
+      "ref_react",
+      "ref_react_router_dom",
+      "src_app",
+      "src_app_requireauth",
+      "src_components_layout",
+      "src_components_layout_layout",
+      "src_components_layout_linkclass",
+      "src_components_layout_main",
+      "src_components_layout_more",
+      "src_components_pageheader",
+      "src_components_pageheader_pageheader",
+      "src_components_pageheader_props",
+      "src_components_setupwizard",
+      "src_lib_auth_useauth",
+      "src_lib_data_usedata",
+      "src_lib_format",
+      "src_lib_format_formatdate",
+      "src_lib_format_formattk",
+      "src_lib_format_statusbn",
+      "src_lib_format_trackingbn",
+      "src_lib_queries_balanceof",
+      "src_lib_queries_findunitbycode",
+      "src_lib_queries_lookupindb",
+      "src_lib_supabase_issupabaseconfigured",
+      "src_pages_customerspage",
+      "src_pages_customerspage_customerspage",
+      "src_pages_customerspage_customerspage_add",
+      "src_pages_labelspage",
+      "src_pages_labelspage_labelspage",
+      "src_pages_loginpage",
+      "src_pages_loginpage_loginpage",
+      "src_pages_loginpage_loginpage_locallogin",
+      "src_pages_loginpage_loginpage_sendcode",
+      "src_pages_loginpage_loginpage_verify",
+      "src_pages_lookuppage",
+      "src_pages_lookuppage_lookuppage",
+      "src_pages_lookuppage_lookuppage_search",
+      "src_pages_morepage",
+      "src_pages_morepage_links",
+      "src_pages_morepage_morepage",
+      "src_pages_purchasepage",
+      "src_pages_purchasepage_purchasepage",
+      "src_pages_purchasepage_purchasepage_additem",
+      "src_pages_purchasepage_purchasepage_createsupplierinline",
+      "src_pages_purchasepage_purchasepage_onpartchange",
+      "src_pages_purchasepage_purchasepage_submit",
+      "src_pages_returnpage",
+      "src_pages_returnpage_returnpage",
+      "src_pages_returnpage_returnpage_submit",
+      "src_pages_salepage",
+      "src_pages_salepage_salepage",
+      "src_pages_salepage_salepage_addbycode",
+      "src_pages_salepage_salepage_addbypart",
+      "src_pages_salepage_salepage_checkout",
+      "src_pages_salepage_salepage_createcustomer",
+      "src_pages_salepage_salepage_onpartchange",
+      "src_pages_settingspage",
+      "src_pages_settingspage_settingspage",
+      "src_pages_settingspage_settingspage_resetdemo",
+      "src_pages_settingspage_settingspage_save",
+      "src_pages_stockpage",
+      "src_pages_stockpage_stockpage",
+      "src_pages_supplierspage",
+      "src_pages_supplierspage_supplierspage",
+      "src_pages_supplierspage_supplierspage_add"
+    ],
+    "1": [
+      "src_data_seed",
+      "src_data_seed_bajajcommuter",
+      "src_data_seed_bajajsport",
+      "src_data_seed_buildparts",
+      "src_data_seed_compatibility",
+      "src_data_seed_hero125",
+      "src_data_seed_hero150",
+      "src_data_seed_herocommuter",
+      "src_data_seed_partdef",
+      "src_data_seed_parts",
+      "src_data_seed_seed_brands",
+      "src_data_seed_seed_categories",
+      "src_data_seed_seed_compatibility",
+      "src_data_seed_seed_models",
+      "src_data_seed_seed_parts",
+      "src_lib_catalog",
+      "src_lib_catalog_catalogpayload",
+      "src_lib_catalog_cataloguuid",
+      "src_lib_data",
+      "src_lib_data_datacontext",
+      "src_lib_data_datactx",
+      "src_lib_db",
+      "src_lib_db_createinitialdb",
+      "src_lib_db_dbapi",
+      "src_lib_db_gencode",
+      "src_lib_db_getbalance",
+      "src_lib_db_loaddb",
+      "src_lib_db_now",
+      "src_lib_db_savedb",
+      "src_lib_db_upsertbalance",
+      "src_lib_queries",
+      "src_lib_queries_emptydatabase",
+      "src_lib_queries_lookupresult",
+      "src_lib_types",
+      "src_lib_types_appdatabase",
+      "src_lib_types_bikemodel",
+      "src_lib_types_brand",
+      "src_lib_types_cartitem",
+      "src_lib_types_customer",
+      "src_lib_types_movementtype",
+      "src_lib_types_part",
+      "src_lib_types_partcategory",
+      "src_lib_types_partmodelcompatibility",
+      "src_lib_types_purchaseiteminput",
+      "src_lib_types_returnrecord",
+      "src_lib_types_sale",
+      "src_lib_types_shop",
+      "src_lib_types_stockbalance",
+      "src_lib_types_stockmovement",
+      "src_lib_types_stockunit",
+      "src_lib_types_supplier",
+      "src_lib_types_trackingmode",
+      "src_lib_types_unitstatus",
+      "src_lib_types_userrole",
+      "src_pages_purchasepage_draftitem"
+    ],
+    "2": [
+      "package",
+      "package_dependencies",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_dependencies_react_router_dom",
+      "package_dependencies_supabase_supabase_js",
+      "package_dependencies_uuid",
+      "package_devdependencies",
+      "package_devdependencies_oxlint",
+      "package_devdependencies_types_node",
+      "package_devdependencies_types_react",
+      "package_devdependencies_types_react_dom",
+      "package_devdependencies_types_uuid",
+      "package_devdependencies_typescript",
+      "package_devdependencies_vite",
+      "package_devdependencies_vitejs_plugin_react",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_check_isolation",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_preview",
+      "package_scripts_prove_isolation",
+      "package_scripts_smoke_isolation",
+      "package_scripts_smoke_isolation_anon",
+      "package_type",
+      "package_version",
+      "ref_oxlint",
+      "ref_types_node",
+      "ref_types_react",
+      "ref_types_react_dom",
+      "ref_types_uuid",
+      "ref_typescript",
+      "ref_uuid",
+      "ref_vite",
+      "ref_vitejs_plugin_react",
+      "vite_config",
+      "vite_config_manualchunks"
+    ],
+    "3": [
+      "ref_node_child_process",
+      "ref_node_fs",
+      "ref_node_path",
+      "ref_node_url",
+      "scripts_check_isolation_sql",
+      "scripts_check_isolation_sql_fails",
+      "scripts_check_isolation_sql_mustmentionshop",
+      "scripts_check_isolation_sql_root",
+      "scripts_check_isolation_sql_shoptables",
+      "scripts_check_isolation_sql_sql",
+      "scripts_live_isolation_smoke",
+      "scripts_live_isolation_smoke_allinone",
+      "scripts_live_isolation_smoke_arg",
+      "scripts_live_isolation_smoke_client",
+      "scripts_live_isolation_smoke_continuefromawaita",
+      "scripts_live_isolation_smoke_ensurepart",
+      "scripts_live_isolation_smoke_extractotp",
+      "scripts_live_isolation_smoke_hasflag",
+      "scripts_live_isolation_smoke_loadanonfromlive",
+      "scripts_live_isolation_smoke_loadstate",
+      "scripts_live_isolation_smoke_main",
+      "scripts_live_isolation_smoke_otp_a",
+      "scripts_live_isolation_smoke_otp_b",
+      "scripts_live_isolation_smoke_pollotp",
+      "scripts_live_isolation_smoke_readotp",
+      "scripts_live_isolation_smoke_readshopid",
+      "scripts_live_isolation_smoke_root",
+      "scripts_live_isolation_smoke_runisolate",
+      "scripts_live_isolation_smoke_savestate",
+      "scripts_live_isolation_smoke_sendotp",
+      "scripts_live_isolation_smoke_sleep",
+      "scripts_live_isolation_smoke_smokestate",
+      "scripts_live_isolation_smoke_state",
+      "scripts_live_isolation_smoke_verifyandshop",
+      "scripts_open_rls_isolation",
+      "scripts_open_rls_isolation_root",
+      "scripts_open_rls_isolation_sql",
+      "scripts_open_rls_isolation_sqlpath"
+    ],
+    "4": [
+      "src_lib_cloud",
+      "src_lib_cloud_client",
+      "src_lib_cloud_cloudaddcustomer",
+      "src_lib_cloud_cloudaddsupplier",
+      "src_lib_cloud_cloudcompletesale",
+      "src_lib_cloud_cloudprocessreturn",
+      "src_lib_cloud_cloudreceivepurchase",
+      "src_lib_cloud_cloudupdateshop",
+      "src_lib_cloud_fail",
+      "src_lib_cloud_loadclouddb",
+      "src_lib_cloud_mapbalance",
+      "src_lib_cloud_mapbrand",
+      "src_lib_cloud_mapcategory",
+      "src_lib_cloud_mapcompat",
+      "src_lib_cloud_mapcustomer",
+      "src_lib_cloud_mapmodel",
+      "src_lib_cloud_mapmovement",
+      "src_lib_cloud_mappart",
+      "src_lib_cloud_mappurchase",
+      "src_lib_cloud_mappurchaseline",
+      "src_lib_cloud_mapreturn",
+      "src_lib_cloud_mapsale",
+      "src_lib_cloud_mapsaleline",
+      "src_lib_cloud_mapsupplier",
+      "src_lib_cloud_mapunit",
+      "src_lib_cloud_num",
+      "src_lib_cloud_row",
+      "src_lib_cloud_rows",
+      "src_lib_cloud_seedsharedcatalog",
+      "src_lib_cloud_str",
+      "src_lib_cloud_strornull",
+      "src_lib_data_dataprovider",
+      "src_lib_types_purchase",
+      "src_lib_types_purchaseline",
+      "src_lib_types_saleline"
+    ],
+    "5": [
+      "supabase_setup",
+      "supabase_setup_bike_models",
+      "supabase_setup_brands",
+      "supabase_setup_customers",
+      "supabase_setup_movements_part_idx",
+      "supabase_setup_part_categories",
+      "supabase_setup_part_model_compatibility",
+      "supabase_setup_parts",
+      "supabase_setup_parts_oem_idx",
+      "supabase_setup_profiles",
+      "supabase_setup_public_complete_sale",
+      "supabase_setup_public_current_shop_id",
+      "supabase_setup_public_ensure_my_shop",
+      "supabase_setup_public_process_return_qty",
+      "supabase_setup_public_process_return_serial",
+      "supabase_setup_public_receive_purchase",
+      "supabase_setup_public_seed_catalog",
+      "supabase_setup_purchase_lines",
+      "supabase_setup_purchases",
+      "supabase_setup_returns",
+      "supabase_setup_sale_lines",
+      "supabase_setup_sales",
+      "supabase_setup_shop_counters",
+      "supabase_setup_shops",
+      "supabase_setup_sql_auth_users",
+      "supabase_setup_stock_balances",
+      "supabase_setup_stock_movements",
+      "supabase_setup_stock_units",
+      "supabase_setup_stock_units_code_idx",
+      "supabase_setup_stock_units_status_idx",
+      "supabase_setup_suppliers"
+    ],
+    "6": [
+      "ref_react_dom",
+      "src_app_app",
+      "src_components_cloudsetup",
+      "src_components_cloudsetup_cloudsetup",
+      "src_components_cloudsetup_copyblock",
+      "src_components_errorboundary",
+      "src_components_errorboundary_errorboundary",
+      "src_components_errorboundary_errorboundary_componentdidcatch",
+      "src_components_errorboundary_errorboundary_getderivedstatefromerror",
+      "src_components_errorboundary_errorboundary_render",
+      "src_components_errorboundary_props",
+      "src_components_errorboundary_state",
+      "src_index",
+      "src_lib_auth",
+      "src_lib_auth_authcontext",
+      "src_lib_auth_authctx",
+      "src_lib_auth_authprovider",
+      "src_lib_auth_readshopid",
+      "src_lib_errors",
+      "src_lib_errors_isdatabasesetuperror",
+      "src_lib_errors_tobanglaerror",
+      "src_lib_supabase",
+      "src_lib_supabase_key",
+      "src_lib_supabase_supabase",
+      "src_lib_supabase_supabaseprojectref",
+      "src_lib_supabase_url",
+      "src_lib_types_appuser",
+      "src_main"
+    ],
+    "7": [
+      "supabase_migrations_001_schema",
+      "supabase_migrations_001_schema_bike_models",
+      "supabase_migrations_001_schema_brands",
+      "supabase_migrations_001_schema_customers",
+      "supabase_migrations_001_schema_movements_part_idx",
+      "supabase_migrations_001_schema_part_categories",
+      "supabase_migrations_001_schema_part_model_compatibility",
+      "supabase_migrations_001_schema_parts",
+      "supabase_migrations_001_schema_parts_oem_idx",
+      "supabase_migrations_001_schema_profiles",
+      "supabase_migrations_001_schema_purchase_lines",
+      "supabase_migrations_001_schema_purchases",
+      "supabase_migrations_001_schema_returns",
+      "supabase_migrations_001_schema_sale_lines",
+      "supabase_migrations_001_schema_sales",
+      "supabase_migrations_001_schema_shop_counters",
+      "supabase_migrations_001_schema_shops",
+      "supabase_migrations_001_schema_sql_auth_users",
+      "supabase_migrations_001_schema_stock_balances",
+      "supabase_migrations_001_schema_stock_movements",
+      "supabase_migrations_001_schema_stock_units",
+      "supabase_migrations_001_schema_stock_units_code_idx",
+      "supabase_migrations_001_schema_stock_units_status_idx",
+      "supabase_migrations_001_schema_suppliers"
+    ],
+    "8": [
+      "src_components_charts",
+      "src_components_charts_point",
+      "src_components_charts_saleslinechart",
+      "src_components_charts_toppartsbarchart",
+      "src_components_setupwizard_setupwizard",
+      "src_components_setupwizard_setupwizard_saveshop",
+      "src_components_setupwizard_setupwizard_savesupplier",
+      "src_lib_queries_daykey",
+      "src_lib_queries_isfreshshop",
+      "src_lib_queries_lowstockrows",
+      "src_lib_queries_monthsalestotal",
+      "src_lib_queries_saleslast7days",
+      "src_lib_queries_stockvalue",
+      "src_lib_queries_todaykey",
+      "src_lib_queries_todaysalestotal",
+      "src_lib_queries_topsoldparts",
+      "src_pages_homepage",
+      "src_pages_homepage_homepage",
+      "src_pages_reportspage",
+      "src_pages_reportspage_reportspage"
+    ],
+    "9": [
+      "tsconfig_app",
+      "tsconfig_app_compileroptions",
+      "tsconfig_app_compileroptions_allowarbitraryextensions",
+      "tsconfig_app_compileroptions_allowimportingtsextensions",
+      "tsconfig_app_compileroptions_erasablesyntaxonly",
+      "tsconfig_app_compileroptions_jsx",
+      "tsconfig_app_compileroptions_lib",
+      "tsconfig_app_compileroptions_module",
+      "tsconfig_app_compileroptions_moduledetection",
+      "tsconfig_app_compileroptions_moduleresolution",
+      "tsconfig_app_compileroptions_noemit",
+      "tsconfig_app_compileroptions_nofallthroughcasesinswitch",
+      "tsconfig_app_compileroptions_nounusedlocals",
+      "tsconfig_app_compileroptions_nounusedparameters",
+      "tsconfig_app_compileroptions_skiplibcheck",
+      "tsconfig_app_compileroptions_target",
+      "tsconfig_app_compileroptions_tsbuildinfofile",
+      "tsconfig_app_compileroptions_types",
+      "tsconfig_app_compileroptions_verbatimmodulesyntax",
+      "tsconfig_app_include"
+    ],
+    "10": [
+      "tsconfig_node",
+      "tsconfig_node_compileroptions",
+      "tsconfig_node_compileroptions_allowimportingtsextensions",
+      "tsconfig_node_compileroptions_erasablesyntaxonly",
+      "tsconfig_node_compileroptions_lib",
+      "tsconfig_node_compileroptions_module",
+      "tsconfig_node_compileroptions_moduledetection",
+      "tsconfig_node_compileroptions_noemit",
+      "tsconfig_node_compileroptions_nofallthroughcasesinswitch",
+      "tsconfig_node_compileroptions_nounusedlocals",
+      "tsconfig_node_compileroptions_nounusedparameters",
+      "tsconfig_node_compileroptions_skiplibcheck",
+      "tsconfig_node_compileroptions_target",
+      "tsconfig_node_compileroptions_tsbuildinfofile",
+      "tsconfig_node_compileroptions_types",
+      "tsconfig_node_compileroptions_verbatimmodulesyntax",
+      "tsconfig_node_include"
+    ],
+    "11": [
+      "ref_supabase_supabase_js",
+      "scripts_live_isolation_anon",
+      "scripts_live_isolation_anon_bootshop",
+      "scripts_live_isolation_anon_clientwithsession",
+      "scripts_live_isolation_anon_ensurepart",
+      "scripts_live_isolation_anon_loadanonfromlive",
+      "scripts_live_isolation_anon_main",
+      "scripts_live_isolation_anon_readshopid",
+      "scripts_live_isolation_password",
+      "scripts_live_isolation_password_bootshop",
+      "scripts_live_isolation_password_clientwithsession",
+      "scripts_live_isolation_password_ensurepart",
+      "scripts_live_isolation_password_loadanonfromlive",
+      "scripts_live_isolation_password_main",
+      "scripts_live_isolation_password_readshopid",
+      "scripts_live_isolation_password_stamp"
+    ],
+    "12": [
+      "supabase_migrations_003_rpcs",
+      "supabase_migrations_003_rpcs_public_complete_sale",
+      "supabase_migrations_003_rpcs_public_process_return_serial",
+      "supabase_migrations_003_rpcs_public_receive_purchase",
+      "supabase_migrations_003_rpcs_sql_shops",
+      "supabase_migrations_003_rpcs_sql_stock_balances",
+      "supabase_migrations_003_rpcs_sql_stock_units"
+    ],
+    "13": [
+      "oxlintrc",
+      "oxlintrc_plugins",
+      "oxlintrc_rules",
+      "oxlintrc_rules_react_only_export_components",
+      "oxlintrc_rules_react_rules_of_hooks",
+      "oxlintrc_schema"
+    ],
+    "14": [
+      "supabase_migrations_005_auth",
+      "supabase_migrations_005_auth_public_ensure_my_shop",
+      "supabase_migrations_005_auth_public_process_return_qty",
+      "supabase_migrations_005_auth_public_seed_catalog",
+      "supabase_migrations_005_auth_sql_parts",
+      "supabase_migrations_005_auth_sql_profiles"
+    ],
+    "15": [
+      "supabase_migrations_002_rls",
+      "supabase_migrations_002_rls_public_current_shop_id",
+      "supabase_migrations_002_rls_sql_profiles"
+    ],
+    "16": [
+      "supabase_migrations_006_ensure_shop_race",
+      "supabase_migrations_006_ensure_shop_race_public_ensure_my_shop",
+      "supabase_migrations_006_ensure_shop_race_sql_profiles"
+    ],
+    "17": [
+      "tsconfig",
+      "tsconfig_files",
+      "tsconfig_references"
+    ],
+    "18": [
+      "bike_models"
+    ],
+    "19": [
+      "brands"
+    ],
+    "20": [
+      "customers"
+    ],
+    "21": [
+      "part_categories"
+    ],
+    "22": [
+      "part_model_compatibility"
+    ],
+    "23": [
+      "purchase_lines"
+    ],
+    "24": [
+      "purchases"
+    ],
+    "25": [
+      "returns"
+    ],
+    "26": [
+      "sale_lines"
+    ],
+    "27": [
+      "sales"
+    ],
+    "28": [
+      "shop_counters"
+    ],
+    "29": [
+      "stock_movements"
+    ],
+    "30": [
+      "supabase_migrations_002_rls_sql_parts"
+    ],
+    "31": [
+      "supabase_migrations_002_rls_sql_shops"
+    ],
+    "32": [
+      "supabase_migrations_002_rls_sql_stock_balances"
+    ],
+    "33": [
+      "supabase_migrations_002_rls_sql_stock_units"
+    ],
+    "34": [
+      "supabase_migrations_004_seed_catalog"
+    ],
+    "35": [
+      "supabase_tests_rls_isolation"
+    ],
+    "36": [
+      "suppliers"
+    ]
+  },
+  "cohesion": {
+    "0": 0.08990384615384615,
+    "1": 0.07272727272727272,
+    "2": 0.05128205128205128,
+    "3": 0.11095305832147938,
+    "4": 0.16134453781512606,
+    "5": 0.15483870967741936,
+    "6": 0.09788359788359788,
+    "7": 0.2318840579710145,
+    "8": 0.17894736842105263,
+    "9": 0.1,
+    "10": 0.11764705882352941,
+    "11": 0.20833333333333334,
+    "12": 0.3333333333333333,
+    "13": 0.3333333333333333,
+    "14": 0.4,
+    "15": 0.6666666666666666,
+    "16": 0.6666666666666666,
+    "17": 0.6666666666666666,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0,
+    "29": 1.0,
+    "30": 1.0,
+    "31": 1.0,
+    "32": 1.0,
+    "33": 1.0,
+    "34": 1.0,
+    "35": 1.0,
+    "36": 1.0
+  },
+  "gods": [
+    {
+      "id": "src_lib_data_usedata",
+      "label": "useData()",
+      "degree": 29
+    },
+    {
+      "id": "src_lib_cloud_loadclouddb",
+      "label": "loadCloudDb()",
+      "degree": 21
+    },
+    {
+      "id": "tsconfig_app_compileroptions",
+      "label": "compilerOptions",
+      "degree": 18
+    },
+    {
+      "id": "ref_react",
+      "label": "react",
+      "degree": 17
+    },
+    {
+      "id": "src_lib_auth_useauth",
+      "label": "useAuth()",
+      "degree": 17
+    },
+    {
+      "id": "src_lib_format_formattk",
+      "label": "formatTk()",
+      "degree": 16
+    },
+    {
+      "id": "ref_react_router_dom",
+      "label": "react-router-dom",
+      "degree": 15
+    },
+    {
+      "id": "tsconfig_node_compileroptions",
+      "label": "compilerOptions",
+      "degree": 15
+    },
+    {
+      "id": "scripts_live_isolation_smoke_main",
+      "label": "main()",
+      "degree": 13
+    },
+    {
+      "id": "src_lib_cloud_num",
+      "label": "num()",
+      "degree": 13
+    }
+  ],
+  "surprises": [
+    {
+      "source": "ensurePart()",
+      "target": "catalogPayload()",
+      "source_files": [
+        "scripts/live-isolation-anon.mts",
+        "src/lib/catalog.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "ensurePart()",
+      "target": "catalogPayload()",
+      "source_files": [
+        "scripts/live-isolation-password.mts",
+        "src/lib/catalog.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "ensurePart()",
+      "target": "catalogPayload()",
+      "source_files": [
+        "scripts/live-isolation-smoke.mts",
+        "src/lib/catalog.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "RequireAuth()",
+      "target": "isDatabaseSetupError()",
+      "source_files": [
+        "src/App.tsx",
+        "src/lib/errors.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "SetupWizard()",
+      "target": "useData()",
+      "source_files": [
+        "src/components/SetupWizard.tsx",
+        "src/lib/data.tsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `@supabase/supabase-js` connect `Community 11` to `Community 2`, `Community 3`, `Community 4`, `Community 6`?",
+      "why": "High betweenness centrality (0.110) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `react` connect `Community 0` to `Community 1`, `Community 2`, `Community 6`?",
+      "why": "High betweenness centrality (0.030) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `react-router-dom` connect `Community 0` to `Community 8`, `Community 2`, `Community 6`?",
+      "why": "High betweenness centrality (0.030) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 15 inferred relationships involving `loadCloudDb()` (e.g. with `mapBalance()` and `mapBrand()`) actually correct?",
+      "why": "`loadCloudDb()` has 15 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?",
+      "why": "109 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08990384615384615 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07272727272727272 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

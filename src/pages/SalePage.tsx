@@ -187,19 +187,21 @@ export function SalePage() {
       : null
     return (
       <>
-        <PageHeader title="ক্যাশমেমো" />
-        <div className="success-banner flow-success">
-          <strong>বিক্রি হয়েছে</strong>
-          <div className="row">
-            <button type="button" className="btn" onClick={() => window.print()}>
-              প্রিন্ট
-            </button>
-            <button type="button" className="btn ghost" onClick={() => setSaleId(null)}>
-              নতুন বিক্রি
-            </button>
-            <Link to="/" className="btn ghost">
-              আজকের হিসাব
-            </Link>
+        <div className="no-print">
+          <PageHeader title="ক্যাশমেমো" />
+          <div className="success-banner flow-success">
+            <strong>বিক্রি হয়েছে</strong>
+            <div className="row">
+              <button type="button" className="btn" onClick={() => window.print()}>
+                প্রিন্ট
+              </button>
+              <button type="button" className="btn ghost" onClick={() => setSaleId(null)}>
+                নতুন বিক্রি
+              </button>
+              <Link to="/" className="btn ghost">
+                আজকের হিসাব
+              </Link>
+            </div>
           </div>
         </div>
         <div className="card memo-sheet" id="memo">

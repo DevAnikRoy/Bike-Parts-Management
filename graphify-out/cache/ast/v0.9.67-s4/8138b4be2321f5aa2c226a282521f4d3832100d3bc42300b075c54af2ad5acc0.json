@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_supabase_migrations_004_seed_catalog_sql", "label": "004_seed_catalog.sql", "file_type": "code", "source_file": "supabase/migrations/004_seed_catalog.sql", "source_location": null}], "edges": []}

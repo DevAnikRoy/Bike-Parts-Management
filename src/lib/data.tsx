@@ -109,12 +109,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setError('')
     ;(async () => {
       try {
-        try {
-          await seedSharedCatalog()
-        } catch {
-          /* catalog seed soft-fail — shop data still loads */
+        const seedOnce = async () => {
+          try {
+            await seedSharedCatalog()
+          } catch {
+            /* soft-fail */
+          }
         }
-        const next = await loadCloudDb(current.shop_id, current)
+        await seedOnce()
+        let next = await loadCloudDb(current.shop_id, current)
+        if (next.parts.length === 0) {
+          await seedOnce()
+          next = await loadCloudDb(current.shop_id, current)
+        }
         if (!cancel) setDb(next)
       } catch (err) {
         if (!cancel) {

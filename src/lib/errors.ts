@@ -26,8 +26,7 @@ export function toBanglaError(message: string) {
     return 'কোড ভুল বা মেয়াদ শেষ। নতুন কোড নিন।'
   }
   if (/redirect/i.test(message)) {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'
-    return `Supabase-এর Redirect URL-এ এই ঠিকানা যোগ করুন: ${origin}`
+    return 'লগইন লিংক এই সাইটের সাথে মিলছে না। কিছুক্ষণ পর আবার চেষ্টা করুন। সমস্যা থাকলে দোকানের মালিককে জানান।'
   }
   if (/unable to validate email|invalid email/i.test(message)) {
     return 'এই ইমেইল ঠিকানা গ্রহণ করা যায়নি'

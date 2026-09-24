@@ -59,7 +59,8 @@ VITE_SUPABASE_ANON_KEY=...
 2. বের হয়ে ইমেইল B দিয়ে লগইন → A-এর স্টক দেখা যাবে না (আলাদা দোকান)  
 3. ল্যাপটপ (সাইডবার) ও ফোন (নিচের মেনু) দুটোতেই চেক করুন  
 
-অফলাইন স্কিমা চেক (ফ্রি): `npm run check:isolation`
+অফলাইন স্কিমা চেক (ফ্রি): `npm run check:isolation`  
+লাইভ দুই-দোকান স্মোক: `npm run smoke:isolation` (বিস্তারিত [`docs/DEPLOY.md`](docs/DEPLOY.md))
 
 ## পার্টস ট্র্যাকিং
 

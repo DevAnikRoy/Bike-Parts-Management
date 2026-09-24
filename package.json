@@ -8,7 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "check:isolation": "node scripts/check-isolation-sql.mjs"
+    "check:isolation": "node scripts/check-isolation-sql.mjs",
+    "smoke:isolation": "npx --yes tsx scripts/live-isolation-smoke.mts",
+    "smoke:isolation:anon": "npx --yes tsx scripts/live-isolation-anon.mts",
+    "prove:isolation": "node scripts/open-rls-isolation.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.0",
