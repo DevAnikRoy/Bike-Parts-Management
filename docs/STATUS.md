@@ -65,3 +65,4 @@
 - 2026-09-23 — `check:isolation` script; live anon RLS empty-array evidence on shop tables
 - 2026-09-24 — Isolation smoke tooling (OTP/anon/password/SQL prove); hard-blocked on human Auth toggle or OTP/SQL
 - 2026-09-24 — Graphify installed (`graphifyy` + SQL); Cursor rule; `graphify-out/` (436 nodes) for architecture queries
+- 2026-09-24 — Security harden: prod fail-closed (no demo), hide SQL/SMTP from shop owners, strip local passwords, delete dead ReportsPage, smoke emails via env only

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
+import { isLocalDemoMode } from '../lib/runtime'
 import { isSupabaseConfigured } from '../lib/supabase'
 
 export function LoginPage() {
@@ -78,9 +79,9 @@ export function LoginPage() {
 
       <div className="card login-card">
         <h2>লগইন</h2>
-        {!isSupabaseConfigured ? (
+        {isLocalDemoMode ? (
           <>
-            <p className="muted">ডেমো: ০১৭০০০০০০০০ / ১২৩৪</p>
+            <p className="muted">লোকাল ডেমো (শুধু ডেভেলপমেন্ট)</p>
             <form onSubmit={localLogin}>
               <div className="field">
                 <label htmlFor="phone">ফোন বা ইমেইল</label>
@@ -93,6 +94,7 @@ export function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                 />
               </div>
               {error && <p className="err">{error}</p>}
@@ -101,6 +103,8 @@ export function LoginPage() {
               </button>
             </form>
           </>
+        ) : !isSupabaseConfigured ? (
+          <p className="err">ক্লাউড লগইন কনফিগার করা নেই।</p>
         ) : step === 'email' ? (
           <>
             <p className="muted">ইমেইলে কোড যাবে। নতুন ইমেইল হলে নিজের দোকান খুলবে।</p>

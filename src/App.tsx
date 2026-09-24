@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { CloudSetup } from './components/CloudSetup'
+import { ConfigError } from './components/ConfigError'
 import { Layout } from './components/Layout'
 import { useAuth } from './lib/auth'
 import { useData } from './lib/data'
 import { isDatabaseSetupError } from './lib/errors'
+import { isMisconfiguredProd, isProdBuild } from './lib/runtime'
 import { CustomersPage } from './pages/CustomersPage'
 import { HomePage } from './pages/HomePage'
 import { LabelsPage } from './pages/LabelsPage'
@@ -32,6 +34,27 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const setupMsg = !user.shop_id ? schemaError || error || 'ডাটাবেস প্রস্তুত নয়' : error
   if (setupMsg) {
     if (isDatabaseSetupError(setupMsg) || (!user.shop_id && isDatabaseSetupError(schemaError))) {
+      // Shop owners never see SQL/SMTP steps; DEV only for local operators.
+      if (isProdBuild) {
+        return (
+          <div className="card">
+            <h2>সিস্টেম প্রস্তুত নয়</h2>
+            <p className="muted">
+              ডাটাবেস সেটআপ এখনো শেষ হয়নি। কিছুক্ষণ পর আবার চেষ্টা করুন। সমস্যা থাকলে যিনি সাইট
+              চালান তাঁকে বলুন।
+            </p>
+            <button
+              type="button"
+              className="btn block"
+              onClick={() => {
+                void refresh().then(() => retry())
+              }}
+            >
+              আবার চেষ্টা
+            </button>
+          </div>
+        )
+      }
       return (
         <div className="card">
           <h2>সেটআপ বাকি</h2>
@@ -76,6 +99,10 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  if (isMisconfiguredProd) {
+    return <ConfigError />
+  }
+
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -136,10 +163,7 @@ export default function App() {
             </RequireAuth>
           }
         />
-        <Route
-          path="/reports"
-          element={<Navigate to="/" replace />}
-        />
+        <Route path="/reports" element={<Navigate to="/" replace />} />
         <Route
           path="/customers"
           element={

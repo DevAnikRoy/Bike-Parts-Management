@@ -10,6 +10,7 @@ import {
 import type { Session } from '@supabase/supabase-js'
 import { dbApi } from './db'
 import { toBanglaError } from './errors'
+import { isLocalDemoMode } from './runtime'
 import { isSupabaseConfigured, supabase } from './supabase'
 import type { AppUser } from './types'
 
@@ -17,6 +18,7 @@ interface AuthCtx {
   user: AppUser | null
   ready: boolean
   schemaError: string
+  /** DEV local demo only — throws if cloud is configured. */
   login: (phoneOrEmail: string, password: string) => void
   sendEmailOtp: (email: string) => Promise<void>
   verifyEmailOtp: (email: string, token: string) => Promise<void>
@@ -43,9 +45,9 @@ function readShopId(data: unknown) {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(() =>
-    isSupabaseConfigured ? null : dbApi.getSessionUser(),
+    isLocalDemoMode ? dbApi.getSessionUser() : null,
   )
-  const [ready, setReady] = useState(!isSupabaseConfigured)
+  const [ready, setReady] = useState(isLocalDemoMode || !isSupabaseConfigured)
   const [schemaError, setSchemaError] = useState('')
 
   const hydrate = useCallback(async (session: Session | null) => {
@@ -100,7 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (!supabase) return
+    if (!supabase) {
+      setReady(true)
+      return
+    }
     let ignore = false
     let chain: Promise<void> = Promise.resolve()
     const runHydrate = (session: Session | null) => {
@@ -135,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [hydrate])
 
   const login = useCallback((phoneOrEmail: string, password: string) => {
-    if (isSupabaseConfigured) {
+    if (!isLocalDemoMode) {
       throw new Error('ইমেইলের কোড দিয়ে লগইন করুন')
     }
     const u = dbApi.login(phoneOrEmail, password)
@@ -175,14 +180,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     if (supabase) await supabase.auth.signOut()
-    else dbApi.logout()
+    else if (isLocalDemoMode) dbApi.logout()
     setUser(null)
     setSchemaError('')
   }, [])
 
   const refresh = useCallback(async () => {
     if (!supabase) {
-      setUser(dbApi.getSessionUser())
+      if (isLocalDemoMode) setUser(dbApi.getSessionUser())
       return
     }
     const { data } = await supabase.auth.getSession()

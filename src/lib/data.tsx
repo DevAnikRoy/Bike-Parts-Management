@@ -20,6 +20,7 @@ import {
 } from './cloud'
 import { dbApi } from './db'
 import { emptyDatabase } from './queries'
+import { isLocalDemoMode } from './runtime'
 import { isSupabaseConfigured } from './supabase'
 import type {
   AppDatabase,
@@ -72,9 +73,9 @@ const DataContext = createContext<DataCtx | null>(null)
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user, ready, schemaError } = useAuth()
   const [db, setDb] = useState<AppDatabase>(() =>
-    isSupabaseConfigured ? emptyDatabase() : dbApi.getDb(),
+    isLocalDemoMode ? dbApi.getDb() : emptyDatabase(),
   )
-  const [loaded, setLoaded] = useState(!isSupabaseConfigured)
+  const [loaded, setLoaded] = useState(isLocalDemoMode)
   const [error, setError] = useState('')
   const [nonce, setNonce] = useState(0)
 
@@ -84,8 +85,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [user])
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
+    if (isLocalDemoMode) {
       setDb(dbApi.getDb())
+      setLoaded(true)
+      setError('')
+      return
+    }
+    if (!isSupabaseConfigured) {
+      setDb(emptyDatabase())
       setLoaded(true)
       setError('')
       return
@@ -137,7 +144,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [ready, user, schemaError, nonce])
 
   const value = useMemo<DataCtx>(() => {
-    if (!isSupabaseConfigured) {
+    if (isLocalDemoMode) {
       const bump = () => setDb(dbApi.getDb())
       return {
         db,

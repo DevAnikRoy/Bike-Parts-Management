@@ -3,6 +3,7 @@ import { PageHeader } from '../components/PageHeader'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
 import { dbApi } from '../lib/db'
+import { isLocalDemoMode } from '../lib/runtime'
 import { isSupabaseConfigured } from '../lib/supabase'
 
 export function SettingsPage() {
@@ -32,6 +33,7 @@ export function SettingsPage() {
   }
 
   function resetDemo() {
+    if (!isLocalDemoMode) return
     if (!confirm('সব ডেটা মুছে ডেমো আবার শুরু হবে। নিশ্চিত?')) return
     dbApi.resetDemo()
     window.location.href = '/login'
@@ -77,18 +79,15 @@ export function SettingsPage() {
             এই ইমেইলের স্টক, কেনা, বিক্রি, কাস্টমার ও সাপ্লায়ার আলাদা। অন্য ইমেইলে ঢুকলে অন্য
             দোকান খুলবে। ব্র্যান্ড ও পার্টসের তালিকা সবার জন্য এক।
           </p>
-        ) : (
+        ) : isLocalDemoMode ? (
           <>
-            <p className="muted">
-              এখন ডাটা এই ব্রাউজারে আছে। Supabase যুক্ত করলে প্রতিটি ইমেইলের হিসাব আলাদা থাকবে।
-            </p>
-            <p className="muted">
-              ডেমো লগইন: <strong>01700000000</strong> / <strong>1234</strong>
-            </p>
+            <p className="muted">লোকাল ডেমো — ডাটা শুধু এই ব্রাউজারে।</p>
             <button type="button" className="btn danger block" onClick={resetDemo}>
               ডেমো রিসেট
             </button>
           </>
+        ) : (
+          <p className="muted">ক্লাউড কনফিগারেশন নেই।</p>
         )}
       </div>
     </>

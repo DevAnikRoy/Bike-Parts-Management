@@ -25,8 +25,15 @@ const OTP_A = join(root, '.smoke-otp-a')
 const OTP_B = join(root, '.smoke-otp-b')
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-const EMAIL_A = process.env.SMOKE_EMAIL_A || 'softvenceanik@gmail.com'
-const EMAIL_B = process.env.SMOKE_EMAIL_B || 'anikroy302@gmail.com'
+const EMAIL_A = process.env.SMOKE_EMAIL_A || ''
+const EMAIL_B = process.env.SMOKE_EMAIL_B || ''
+
+if (!EMAIL_A || !EMAIL_B) {
+  console.error(
+    'ISOLATION_SMOKE_FAIL Set SMOKE_EMAIL_A and SMOKE_EMAIL_B (no emails are hardcoded).',
+  )
+  process.exit(1)
+}
 
 type SmokeState = {
   url: string

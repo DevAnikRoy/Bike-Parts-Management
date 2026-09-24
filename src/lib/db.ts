@@ -21,6 +21,10 @@ import type {
 
 const STORAGE_KEY = 'bpm_db_v1'
 const SESSION_KEY = 'bpm_session_user_id'
+/** DEV-only demo credentials — never written into localStorage. */
+const DEMO_PHONE = '01700000000'
+const DEMO_EMAIL = 'owner@demo.local'
+const DEMO_PASSWORD = '1234'
 
 function now() {
   return new Date().toISOString()
@@ -50,10 +54,9 @@ function createInitialDb(): AppDatabase {
         id: ownerId,
         shop_id: shopId,
         name: 'দোকান মালিক',
-        phone: '01700000000',
-        email: 'owner@demo.local',
+        phone: DEMO_PHONE,
+        email: DEMO_EMAIL,
         role: 'owner',
-        password: '1234',
       },
     ],
     brands: SEED_BRANDS,
@@ -75,6 +78,14 @@ function createInitialDb(): AppDatabase {
   }
 }
 
+function stripSecrets(db: AppDatabase): AppDatabase {
+  db.users = db.users.map((u) => {
+    const { password: _drop, ...rest } = u as AppUser & { password?: string }
+    return rest
+  })
+  return db
+}
+
 function loadDb(): AppDatabase {
   const raw = localStorage.getItem(STORAGE_KEY)
   if (!raw) {
@@ -83,7 +94,9 @@ function loadDb(): AppDatabase {
     return db
   }
   try {
-    return JSON.parse(raw) as AppDatabase
+    const parsed = stripSecrets(JSON.parse(raw) as AppDatabase)
+    saveDb(parsed)
+    return parsed
   } catch {
     const db = createInitialDb()
     saveDb(db)
@@ -92,7 +105,7 @@ function loadDb(): AppDatabase {
 }
 
 function saveDb(db: AppDatabase) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(db))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stripSecrets(db)))
 }
 
 function getBalance(db: AppDatabase, partId: string): StockBalance | undefined {
@@ -151,12 +164,12 @@ export const dbApi = {
 
   login(phoneOrEmail: string, password: string): AppUser {
     const db = loadDb()
-    const user = db.users.find(
-      (u) =>
-        (u.phone === phoneOrEmail || u.email === phoneOrEmail) &&
-        u.password === password,
-    )
-    if (!user) throw new Error('ফোন/ইমেইল বা পাসওয়ার্ড ভুল')
+    const id = phoneOrEmail.trim()
+    const user = db.users.find((u) => u.phone === id || u.email === id)
+    const demoOk =
+      password === DEMO_PASSWORD &&
+      (id === DEMO_PHONE || id === DEMO_EMAIL || user?.phone === DEMO_PHONE)
+    if (!user || !demoOk) throw new Error('ফোন/ইমেইল বা পাসওয়ার্ড ভুল')
     localStorage.setItem(SESSION_KEY, user.id)
     return user
   },

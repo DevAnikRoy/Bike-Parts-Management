@@ -32,3 +32,9 @@ dist-ssr
 # Isolation smoke OTP scratch files
 scripts/.smoke-otp-*
 scripts/.smoke-state.json
+
+# Graphify (keep report/json/html if committed; ignore caches & temp)
+graphify-out/cache/
+graphify-out/.graphify_*
+graphify-out/.graphify_python
+graphify-out/.graphify_root

@@ -299,7 +299,7 @@ export async function loadCloudDb(shopId: string, user: AppUser): Promise<AppDat
       invoice_prefix: str(shop.invoice_prefix || 'BPM'),
       created_at: str(shop.created_at),
     },
-    users: [{ ...user, password: undefined }],
+    users: [user],
     brands: brands.map(mapBrand),
     models: models.map(mapModel),
     categories: categories.map(mapCategory),
