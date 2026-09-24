@@ -2,19 +2,19 @@ import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { useData } from '../lib/data'
 import { formatDate } from '../lib/format'
+import { useToast } from '../lib/toast'
 
 export function SuppliersPage() {
   const { db, addSupplier, deleteSupplier } = useData()
+  const notify = useToast()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
-  const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   async function add() {
-    setError('')
     if (!name.trim() || !phone.trim()) {
-      setError('নাম ও ফোন লাগবে')
+      notify.error('নাম ও ফোন লাগবে')
       return
     }
     try {
@@ -27,19 +27,20 @@ export function SuppliersPage() {
       setName('')
       setPhone('')
       setAddress('')
+      notify.success('সাপ্লায়ার যোগ হয়েছে')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'সেভ হয়নি')
+      notify.fromError(err, 'সাপ্লায়ার সেভ হয়নি')
     }
   }
 
   async function remove(id: string, label: string) {
-    setError('')
     if (!confirm(`“${label}” সাপ্লায়ার মুছে ফেলবেন? পুরনো কেনার হিসাব থাকবে।`)) return
     setDeletingId(id)
     try {
       await deleteSupplier(id)
+      notify.success('সাপ্লায়ার মুছে ফেলা হয়েছে')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'মুছা যায়নি')
+      notify.fromError(err, 'সাপ্লায়ার মুছা যায়নি')
     } finally {
       setDeletingId(null)
     }
@@ -70,7 +71,6 @@ export function SuppliersPage() {
             <label>ঠিকানা</label>
             <input value={address} onChange={(e) => setAddress(e.target.value)} />
           </div>
-          {error && <p className="err">{error}</p>}
           <button type="button" className="btn block" onClick={() => void add()}>
             সেভ করুন
           </button>
@@ -78,7 +78,6 @@ export function SuppliersPage() {
 
         <div className="card">
           <h2>তালিকা ({db.suppliers.length})</h2>
-          {error && <p className="err">{error}</p>}
           {db.suppliers.length === 0 ? (
             <div className="empty">এখনো সাপ্লায়ার নেই</div>
           ) : (

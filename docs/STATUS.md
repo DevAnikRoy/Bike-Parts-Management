@@ -35,10 +35,12 @@
 - [x] Live anon RLS probe (empty shop data)
 - [x] Production Netlify deploys
 - [x] Isolation tooling: `smoke:isolation`, `smoke:isolation:anon`, `prove:isolation`, `rls_isolation.sql`
+- [x] Customer/supplier delete + site-wide Bangla toasts
+- [x] Real part-type photos (22/22) under `public/parts/*.jpg` from Commons + Unsplash; SVG fallback
 
 ## In progress
 
-- (none — anon watcher stopped)
+- (none)
 
 ## Next (priority order)
 
@@ -52,6 +54,7 @@
 
 - [ ] Live 2-shop isolation smoke (closes industry DoD / goal) — one of the three paths above
 - [ ] Optional: apply `006_ensure_shop_race.sql`
+- [ ] **Existing Supabase project:** run `supabase/migrations/007_shop_logo.sql` (or re-run `setup.sql` alter) so logo saves to cloud
 - [ ] Git push to `main`
 
 ## Gaps / risks
@@ -67,3 +70,11 @@
 - 2026-09-24 — Graphify installed (`graphifyy` + SQL); Cursor rule; `graphify-out/` (436 nodes) for architecture queries
 - 2026-09-24 — Security harden: prod fail-closed (no demo), hide SQL/SMTP from shop owners, strip local passwords, delete dead ReportsPage, smoke emails via env only
 - 2026-09-24 — Customer/supplier delete (UI + local/cloud; sales/purchases keep history via null FK)
+- 2026-09-24 — Site-wide Bangla toasts (top-right): success/error/info; stronger toBanglaError map
+- 2026-09-24 — Part type thumbnails beside names (stock/sale/purchase/lookup/labels/home); 22 SVG icons
+- 2026-09-24 — Replaced SVG thumbs with real Commons/Unsplash photos for all 22 visual keys; `partImageSrc` prefers jpg; SVG onError fallback
+- 2026-09-24 — Desktop hover: modest ~112px part photo preview on PartThumb (phone unchanged)
+- 2026-09-24 — Stock page redesign: summary chips, search toolbar, qty meter, cleaner desktop table + phone cards
+- 2026-09-24 — Stock list/grid toggle (persisted); hover preview opens to the right (no left clip)
+- 2026-09-24 — README rewritten in English for recruiters: niche, problem, plain-language stack & scope
+- 2026-09-24 — Larger stock photos (xl); shop SVG logo in Settings → sidebar/topbar + sale memo; migration `007_shop_logo.sql`

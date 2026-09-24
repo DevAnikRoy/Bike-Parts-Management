@@ -5,17 +5,20 @@ import App from './App'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { AuthProvider } from './lib/auth'
 import { DataProvider } from './lib/data'
+import { ToastProvider } from './lib/toast'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
       <BrowserRouter>
-        <AuthProvider>
-          <DataProvider>
-            <App />
-          </DataProvider>
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <DataProvider>
+              <App />
+            </DataProvider>
+          </AuthProvider>
+        </ToastProvider>
       </BrowserRouter>
     </ErrorBoundary>
   </StrictMode>,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
+import { PartThumb } from '../components/PartThumb'
 import { useData } from '../lib/data'
 import { lookupInDb, type LookupResult } from '../lib/queries'
 import { formatDate, formatTk, statusBn } from '../lib/format'
@@ -56,7 +57,12 @@ export function LookupPage() {
 
       {result?.type === 'unit' && (
         <div className="card">
-          <h2>{result.part?.name_bn}</h2>
+          <div className="part-row" style={{ marginBottom: 12 }}>
+            {result.part && (
+              <PartThumb name={result.part.name} label={result.part.name_bn} size="lg" />
+            )}
+            <h2 style={{ margin: 0 }}>{result.part?.name_bn}</h2>
+          </div>
           <p>
             <span className="badge">{statusBn(result.unit.status)}</span>
           </p>
@@ -137,8 +143,13 @@ export function LookupPage() {
         <div className="list">
           {result.parts.map(({ part, balance, units_in_stock }) => (
             <div key={part.id} className="card">
-              <strong>{part.name_bn}</strong>
-              <div className="muted">{part.oem_part_no}</div>
+              <div className="part-row">
+                <PartThumb name={part.name} label={part.name_bn} />
+                <div>
+                  <strong>{part.name_bn}</strong>
+                  <div className="muted">{part.oem_part_no}</div>
+                </div>
+              </div>
               <p>
                 স্টক: <strong>{balance?.qty ?? 0}</strong>
                 {units_in_stock.length > 0 && (

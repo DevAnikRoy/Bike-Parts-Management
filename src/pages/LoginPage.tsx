@@ -3,15 +3,16 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { isLocalDemoMode } from '../lib/runtime'
 import { isSupabaseConfigured } from '../lib/supabase'
+import { useToast } from '../lib/toast'
 
 export function LoginPage() {
   const { user, login, sendEmailOtp, verifyEmailOtp } = useAuth()
   const navigate = useNavigate()
+  const notify = useToast()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
   const [step, setStep] = useState<'email' | 'code'>('email')
-  const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -19,11 +20,10 @@ export function LoginPage() {
 
   async function sendCode(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     setInfo('')
     const clean = email.trim().toLowerCase()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) {
-      setError('সঠিক ইমেইল দিন')
+      notify.error('সঠিক ইমেইল দিন')
       return
     }
     setBusy(true)
@@ -32,8 +32,9 @@ export function LoginPage() {
       setEmail(clean)
       setStep('code')
       setInfo('ইমেইলে যে ৬ সংখ্যা এসেছে, এখানে লিখুন।')
+      notify.success('কোড পাঠানো হয়েছে — ইনবক্স দেখুন')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'কোড পাঠানো যায়নি')
+      notify.fromError(err, 'কোড পাঠানো যায়নি')
     } finally {
       setBusy(false)
     }
@@ -41,18 +42,18 @@ export function LoginPage() {
 
   async function verify(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     const token = code.replace(/\s/g, '')
     if (!/^\d{6}$/.test(token)) {
-      setError('৬ সংখ্যার কোড দিন')
+      notify.error('৬ সংখ্যার কোড দিন')
       return
     }
     setBusy(true)
     try {
       await verifyEmailOtp(email, token)
+      notify.success('লগইন হয়েছে')
       navigate('/')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'লগইন ব্যর্থ')
+      notify.fromError(err, 'লগইন হয়নি')
     } finally {
       setBusy(false)
     }
@@ -60,12 +61,12 @@ export function LoginPage() {
 
   function localLogin(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     try {
       login(email.trim(), password)
+      notify.success('লগইন হয়েছে')
       navigate('/')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'লগইন ব্যর্থ')
+      notify.fromError(err, 'লগইন হয়নি')
     }
   }
 
@@ -97,7 +98,6 @@ export function LoginPage() {
                   autoComplete="current-password"
                 />
               </div>
-              {error && <p className="err">{error}</p>}
               <button type="submit" className="btn block">
                 ভিতরে যান
               </button>
@@ -121,7 +121,6 @@ export function LoginPage() {
                   autoFocus
                 />
               </div>
-              {error && <p className="err">{error}</p>}
               <button type="submit" className="btn block" disabled={busy}>
                 {busy ? 'পাঠানো হচ্ছে...' : 'কোড পাঠান'}
               </button>
@@ -142,7 +141,6 @@ export function LoginPage() {
                 autoFocus
               />
             </div>
-            {error && <p className="err">{error}</p>}
             <button type="submit" className="btn block" disabled={busy}>
               {busy ? 'যাচাই হচ্ছে...' : 'ভিতরে যান'}
             </button>
@@ -153,14 +151,14 @@ export function LoginPage() {
               disabled={busy}
               onClick={() => {
                 void (async () => {
-                  setError('')
                   setInfo('')
                   setBusy(true)
                   try {
                     await sendEmailOtp(email)
                     setInfo('নতুন কোড পাঠানো হয়েছে।')
+                    notify.success('নতুন কোড পাঠানো হয়েছে')
                   } catch (err) {
-                    setError(err instanceof Error ? err.message : 'কোড পাঠানো যায়নি')
+                    notify.fromError(err, 'কোড পাঠানো যায়নি')
                   } finally {
                     setBusy(false)
                   }
@@ -177,7 +175,6 @@ export function LoginPage() {
               onClick={() => {
                 setStep('email')
                 setCode('')
-                setError('')
               }}
             >
               অন্য ইমেইল

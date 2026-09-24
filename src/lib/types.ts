@@ -14,6 +14,8 @@ export interface Shop {
   address: string
   phone: string
   invoice_prefix: string
+  /** Raw SVG markup for shop branding (keep ≤100KB). */
+  logo_svg?: string | null
   created_at: string
 }
 

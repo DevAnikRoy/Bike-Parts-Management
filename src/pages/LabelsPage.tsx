@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
+import { PartThumb } from '../components/PartThumb'
 import { useData } from '../lib/data'
 
 export function LabelsPage() {
@@ -68,6 +69,9 @@ export function LabelsPage() {
                   breakInside: 'avoid',
                 }}
               >
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
+                  {part && <PartThumb name={part.name} label={part.name_bn} size="sm" />}
+                </div>
                 <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>
                   {part?.name_bn}
                 </div>

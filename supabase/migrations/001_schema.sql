@@ -9,6 +9,7 @@ create table if not exists shops (
   address text not null default '',
   phone text not null default '',
   invoice_prefix text not null default 'BPM',
+  logo_svg text,
   created_at timestamptz not null default now()
 );
 

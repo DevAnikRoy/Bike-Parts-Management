@@ -297,6 +297,7 @@ export async function loadCloudDb(shopId: string, user: AppUser): Promise<AppDat
       address: str(shop.address),
       phone: str(shop.phone),
       invoice_prefix: str(shop.invoice_prefix || 'BPM'),
+      logo_svg: shop.logo_svg != null ? str(shop.logo_svg) : null,
       created_at: str(shop.created_at),
     },
     users: [user],
@@ -323,15 +324,13 @@ export async function cloudUpdateShop(
   shopId: string,
   data: Partial<AppDatabase['shop']>,
 ) {
-  const { error } = await client()
-    .from('shops')
-    .update({
-      name: data.name,
-      address: data.address,
-      phone: data.phone,
-      invoice_prefix: data.invoice_prefix,
-    })
-    .eq('id', shopId)
+  const patch: Record<string, unknown> = {}
+  if (data.name !== undefined) patch.name = data.name
+  if (data.address !== undefined) patch.address = data.address
+  if (data.phone !== undefined) patch.phone = data.phone
+  if (data.invoice_prefix !== undefined) patch.invoice_prefix = data.invoice_prefix
+  if (data.logo_svg !== undefined) patch.logo_svg = data.logo_svg
+  const { error } = await client().from('shops').update(patch).eq('id', shopId)
   fail(error)
 }
 

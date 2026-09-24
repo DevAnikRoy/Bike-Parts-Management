@@ -1,25 +1,28 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
+import { PartThumb } from '../components/PartThumb'
+import { ShopLogo } from '../components/ShopLogo'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
 import { findUnitByCode } from '../lib/queries'
 import { formatDate, formatTk } from '../lib/format'
+import { useToast } from '../lib/toast'
 import type { CartItem } from '../lib/types'
 
 export function SalePage() {
   const { user } = useAuth()
   const { db, completeSale, addCustomer, retry } = useData()
+  const notify = useToast()
   const [customerId, setCustomerId] = useState('')
   const [partQ, setPartQ] = useState('')
   const [partId, setPartId] = useState('')
   const [qty, setQty] = useState(1)
   const [sellPrice, setSellPrice] = useState(0)
   const [code, setCode] = useState('')
-  const [cart, setCart] = useState<(CartItem & { name: string })[]>([])
+  const [cart, setCart] = useState<(CartItem & { name: string; name_en: string })[]>([])
   const [discount, setDiscount] = useState(0)
   const [note, setNote] = useState('')
-  const [error, setError] = useState('')
   const [saleId, setSaleId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [showNewCustomer, setShowNewCustomer] = useState(false)
@@ -51,18 +54,17 @@ export function SalePage() {
   }
 
   function addByCode() {
-    setError('')
     const unit = findUnitByCode(db, code)
     if (!unit) {
-      setError('এই কোড স্টকে নেই')
+      notify.error('এই কোড স্টকে নেই')
       return
     }
     if (unit.status !== 'in_stock') {
-      setError('এই কোড ইতিমধ্যে বিক্রি/ব্যবহৃত')
+      notify.error('এই কোড ইতিমধ্যে বিক্রি/ব্যবহৃত')
       return
     }
     if (cart.some((c) => c.stock_unit_id === unit.id)) {
-      setError('কার্টে আগে থেকেই আছে')
+      notify.error('কার্টে আগে থেকেই আছে')
       return
     }
     const part = db.parts.find((p) => p.id === unit.part_id)!
@@ -72,6 +74,7 @@ export function SalePage() {
       {
         part_id: unit.part_id,
         name: part.name_bn,
+        name_en: part.name,
         qty: 1,
         sell_price: bal?.sell_price ?? part.default_sell_price,
         stock_unit_id: unit.id,
@@ -79,21 +82,21 @@ export function SalePage() {
       },
     ])
     setCode('')
+    notify.success('কার্টে যোগ হয়েছে')
   }
 
   function addByPart() {
-    setError('')
     if (!partId) {
-      setError('পার্ট বাছুন')
+      notify.error('পার্ট বাছুন')
       return
     }
     if (!Number.isFinite(qty) || qty < 1) {
-      setError('পরিমাণ ১ বা তার বেশি হতে হবে')
+      notify.error('পরিমাণ ১ বা তার বেশি হতে হবে')
       return
     }
     const part = db.parts.find((p) => p.id === partId)!
     if (part.tracking_mode === 'serialized') {
-      setError('এই পার্টে সিরিয়াল/কোড স্ক্যান করতে হবে')
+      notify.error('এই পার্টে সিরিয়াল/কোড স্ক্যান করতে হবে')
       return
     }
     const bal = db.stock_balances.find((b) => b.part_id === partId)
@@ -101,7 +104,7 @@ export function SalePage() {
       .filter((c) => c.part_id === partId && !c.stock_unit_id)
       .reduce((s, c) => s + c.qty, 0)
     if (!bal || bal.qty < inCart + qty) {
-      setError('পর্যাপ্ত স্টক নেই')
+      notify.error('পর্যাপ্ত স্টক নেই')
       return
     }
     setCart((prev) => [
@@ -109,18 +112,19 @@ export function SalePage() {
       {
         part_id: partId,
         name: part.name_bn,
+        name_en: part.name,
         qty,
         sell_price: sellPrice,
       },
     ])
     setQty(1)
+    notify.success('কার্টে যোগ হয়েছে')
   }
 
   async function createCustomer(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     if (!newName.trim() || !newPhone.trim()) {
-      setError('কাস্টমারের নাম ও ফোন দিন')
+      notify.error('কাস্টমারের নাম ও ফোন দিন')
       return
     }
     setBusy(true)
@@ -135,8 +139,9 @@ export function SalePage() {
       setShowNewCustomer(false)
       setNewName('')
       setNewPhone('')
+      notify.success('কাস্টমার যোগ হয়েছে')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'কাস্টমার সেভ হয়নি')
+      notify.fromError(err, 'কাস্টমার সেভ হয়নি')
     } finally {
       setBusy(false)
     }
@@ -144,7 +149,10 @@ export function SalePage() {
 
   async function checkout() {
     if (!user) return
-    setError('')
+    if (cart.length === 0) {
+      notify.error('কার্ট খালি — আগে পার্ট যোগ করুন')
+      return
+    }
     setBusy(true)
     try {
       const sub = cart.reduce((s, c) => s + c.qty * c.sell_price, 0)
@@ -160,8 +168,9 @@ export function SalePage() {
       setCart([])
       setDiscount(0)
       setNote('')
+      notify.success('বিক্রি সম্পন্ন — মেমো তৈরি হয়েছে')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'বিক্রি ব্যর্থ')
+      notify.fromError(err, 'বিক্রি হয়নি')
     } finally {
       setBusy(false)
     }
@@ -205,11 +214,16 @@ export function SalePage() {
           </div>
         </div>
         <div className="card memo-sheet" id="memo">
-          <h2 className="memo-shop">{db.shop.name}</h2>
-          <p className="muted memo-meta">
-            {db.shop.address}
-            {db.shop.phone ? ` · ${db.shop.phone}` : ''}
-          </p>
+          <div className="memo-header">
+            <ShopLogo svg={db.shop.logo_svg} name={db.shop.name} size="memo" />
+            <div>
+              <h2 className="memo-shop">{db.shop.name}</h2>
+              <p className="muted memo-meta">
+                {db.shop.address}
+                {db.shop.phone ? ` · ${db.shop.phone}` : ''}
+              </p>
+            </div>
+          </div>
           <p>
             <strong>মেমো:</strong> {sale.invoice_no}
             <br />
@@ -363,6 +377,16 @@ export function SalePage() {
                 )
               })}
             </select>
+            {partId &&
+              (() => {
+                const p = db.parts.find((x) => x.id === partId)
+                return p ? (
+                  <div className="part-select-preview">
+                    <PartThumb name={p.name} label={p.name_bn} size="sm" />
+                    <span>{p.name_bn}</span>
+                  </div>
+                ) : null
+              })()}
           </div>
           <div className="row">
             <div className="field" style={{ flex: 1 }}>
@@ -401,12 +425,15 @@ export function SalePage() {
             <div className="list">
               {cart.map((c, i) => (
                 <div key={`${c.part_id}-${c.unique_code ?? i}`} className="list-item">
-                  <div>
-                    <strong>{c.name}</strong>
-                    <span className="muted">
-                      {c.qty} × {formatTk(c.sell_price)}
-                      {c.unique_code ? ` · ${c.unique_code}` : ''}
-                    </span>
+                  <div className="part-row">
+                    <PartThumb name={c.name_en} label={c.name} size="sm" />
+                    <div>
+                      <strong>{c.name}</strong>
+                      <span className="muted">
+                        {c.qty} × {formatTk(c.sell_price)}
+                        {c.unique_code ? ` · ${c.unique_code}` : ''}
+                      </span>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -437,7 +464,6 @@ export function SalePage() {
           <p className="flow-total">
             মোট <strong>{formatTk(due)}</strong>
           </p>
-          {error && <p className="err">{error}</p>}
           <button
             type="button"
             className="btn block accent-btn"

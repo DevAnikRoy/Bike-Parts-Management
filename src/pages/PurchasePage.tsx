@@ -1,19 +1,23 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
+import { PartThumb } from '../components/PartThumb'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
 import { formatTk, trackingBn } from '../lib/format'
+import { useToast } from '../lib/toast'
 import type { PurchaseItemInput } from '../lib/types'
 
 interface DraftItem extends PurchaseItemInput {
   key: string
   part_name: string
+  part_name_en: string
 }
 
 export function PurchasePage() {
   const { user } = useAuth()
   const { db, receivePurchase, addSupplier, retry } = useData()
+  const notify = useToast()
   const [supplierId, setSupplierId] = useState('')
   const [note, setNote] = useState('')
   const [partQ, setPartQ] = useState('')
@@ -23,13 +27,12 @@ export function PurchasePage() {
   const [serialText, setSerialText] = useState('')
   const [generateCodes, setGenerateCodes] = useState(true)
   const [items, setItems] = useState<DraftItem[]>([])
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [lastUnits, setLastUnits] = useState<{ code: string; name: string }[]>([])
   const [busy, setBusy] = useState(false)
   const [showNewSupplier, setShowNewSupplier] = useState(false)
   const [newSupName, setNewSupName] = useState('')
   const [newSupPhone, setNewSupPhone] = useState('')
+  const [doneBanner, setDoneBanner] = useState('')
 
   const selected = db.parts.find((p) => p.id === partId)
   const filteredParts = useMemo(() => {
@@ -52,13 +55,12 @@ export function PurchasePage() {
   }
 
   function addItem() {
-    setError('')
     if (!partId) {
-      setError('পার্ট বাছুন')
+      notify.error('পার্ট বাছুন')
       return
     }
     if (!Number.isFinite(qty) || qty < 1) {
-      setError('পরিমাণ ১ বা তার বেশি হতে হবে')
+      notify.error('পরিমাণ ১ বা তার বেশি হতে হবে')
       return
     }
     const part = db.parts.find((p) => p.id === partId)!
@@ -68,7 +70,7 @@ export function PurchasePage() {
       .filter(Boolean)
 
     if (part.tracking_mode === 'serialized' && serials.length && serials.length !== qty) {
-      setError('সিরিয়াল সংখ্যা পরিমাণের সমান হতে হবে (অথবা খালি রেখে অটো কোড নিন)')
+      notify.error('সিরিয়াল সংখ্যা পরিমাণের সমান হতে হবে (অথবা খালি রেখে অটো কোড নিন)')
       return
     }
 
@@ -78,6 +80,7 @@ export function PurchasePage() {
         key: `${partId}-${Date.now()}`,
         part_id: partId,
         part_name: part.name_bn,
+        part_name_en: part.name,
         qty,
         buy_price: buyPrice,
         serials: serials.length ? serials : undefined,
@@ -89,14 +92,14 @@ export function PurchasePage() {
     ])
     setSerialText('')
     setQty(1)
-    setSuccess('')
+    setDoneBanner('')
+    notify.success('তালিকায় যোগ হয়েছে')
   }
 
   async function createSupplierInline(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     if (!newSupName.trim() || !newSupPhone.trim()) {
-      setError('সাপ্লায়ারের নাম ও ফোন দিন')
+      notify.error('সাপ্লায়ারের নাম ও ফোন দিন')
       return
     }
     setBusy(true)
@@ -111,8 +114,9 @@ export function PurchasePage() {
       setShowNewSupplier(false)
       setNewSupName('')
       setNewSupPhone('')
+      notify.success('সাপ্লায়ার যোগ হয়েছে')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'সাপ্লায়ার সেভ হয়নি')
+      notify.fromError(err, 'সাপ্লায়ার সেভ হয়নি')
     } finally {
       setBusy(false)
     }
@@ -120,8 +124,11 @@ export function PurchasePage() {
 
   async function submit() {
     if (!user) return
-    setError('')
-    setSuccess('')
+    if (items.length === 0) {
+      notify.error('কমপক্ষে একটি পার্ট যোগ করুন')
+      return
+    }
+    setDoneBanner('')
     setBusy(true)
     try {
       const result = await receivePurchase({
@@ -136,7 +143,9 @@ export function PurchasePage() {
         })),
         user_id: user.id,
       })
-      setSuccess(`স্টকে যোগ হয়েছে · চালান ${result.invoice_no} · ${formatTk(result.total)}`)
+      const msg = `স্টকে যোগ হয়েছে · চালান ${result.invoice_no} · ${formatTk(result.total)}`
+      setDoneBanner(msg)
+      notify.success(msg)
       setLastUnits(
         result.units.map((u) => ({
           code: u.unique_code,
@@ -146,7 +155,7 @@ export function PurchasePage() {
       setItems([])
       setNote('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'কেনা ব্যর্থ')
+      notify.fromError(err, 'কেনা সেভ হয়নি')
     } finally {
       setBusy(false)
     }
@@ -168,10 +177,10 @@ export function PurchasePage() {
         </div>
       )}
 
-      {success && (
+      {doneBanner && (
         <div className="success-banner flow-success">
           <div>
-            <strong>{success}</strong>
+            <strong>{doneBanner}</strong>
           </div>
           <div className="row">
             <Link to="/labels" className="btn ghost">
@@ -246,6 +255,12 @@ export function PurchasePage() {
                 </option>
               ))}
             </select>
+            {selected && (
+              <div className="part-select-preview">
+                <PartThumb name={selected.name} label={selected.name_bn} size="sm" />
+                <span>{selected.name_bn}</span>
+              </div>
+            )}
           </div>
 
           {selected && (
@@ -316,12 +331,15 @@ export function PurchasePage() {
             <div className="list">
               {items.map((it) => (
                 <div key={it.key} className="list-item">
-                  <div>
-                    <strong>{it.part_name}</strong>
-                    <span className="muted">
-                      {it.qty} × {formatTk(it.buy_price)}
-                      {it.generate_codes ? ' · অটো কোড' : ''}
-                    </span>
+                  <div className="part-row">
+                    <PartThumb name={it.part_name_en} label={it.part_name} size="sm" />
+                    <div>
+                      <strong>{it.part_name}</strong>
+                      <span className="muted">
+                        {it.qty} × {formatTk(it.buy_price)}
+                        {it.generate_codes ? ' · অটো কোড' : ''}
+                      </span>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -343,7 +361,6 @@ export function PurchasePage() {
           <p className="flow-total">
             মোট <strong>{formatTk(listTotal)}</strong>
           </p>
-          {error && <p className="err">{error}</p>}
           <button
             type="button"
             className="btn block"

@@ -24,6 +24,8 @@ import { dbApi } from './db'
 import { emptyDatabase } from './queries'
 import { isLocalDemoMode } from './runtime'
 import { isSupabaseConfigured } from './supabase'
+import { userFacingError } from './errors'
+import { toast } from './toast'
 import type {
   AppDatabase,
   CartItem,
@@ -136,7 +138,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (!cancel) setDb(next)
       } catch (err) {
         if (!cancel) {
-          setError(err instanceof Error ? err.message : 'ডাটা লোড হয়নি')
+          const msg = userFacingError(err, 'ডাটা লোড হয়নি')
+          setError(msg)
+          toast().fromError(err, 'ডাটা লোড হয়নি')
         }
       } finally {
         if (!cancel) setLoaded(true)

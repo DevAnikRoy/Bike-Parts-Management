@@ -2,19 +2,19 @@ import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { useData } from '../lib/data'
 import { formatDate } from '../lib/format'
+import { useToast } from '../lib/toast'
 
 export function CustomersPage() {
   const { db, addCustomer, deleteCustomer } = useData()
+  const notify = useToast()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
-  const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   async function add() {
-    setError('')
     if (!name.trim() || !phone.trim()) {
-      setError('নাম ও ফোন লাগবে')
+      notify.error('নাম ও ফোন লাগবে')
       return
     }
     try {
@@ -27,19 +27,20 @@ export function CustomersPage() {
       setName('')
       setPhone('')
       setAddress('')
+      notify.success('কাস্টমার যোগ হয়েছে')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'সেভ হয়নি')
+      notify.fromError(err, 'কাস্টমার সেভ হয়নি')
     }
   }
 
   async function remove(id: string, label: string) {
-    setError('')
     if (!confirm(`“${label}” কাস্টমার মুছে ফেলবেন? পুরনো বিক্রির হিসাব থাকবে।`)) return
     setDeletingId(id)
     try {
       await deleteCustomer(id)
+      notify.success('কাস্টমার মুছে ফেলা হয়েছে')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'মুছা যায়নি')
+      notify.fromError(err, 'কাস্টমার মুছা যায়নি')
     } finally {
       setDeletingId(null)
     }
@@ -70,7 +71,6 @@ export function CustomersPage() {
             <label>ঠিকানা</label>
             <input value={address} onChange={(e) => setAddress(e.target.value)} />
           </div>
-          {error && <p className="err">{error}</p>}
           <button type="button" className="btn block" onClick={() => void add()}>
             সেভ করুন
           </button>
@@ -78,7 +78,6 @@ export function CustomersPage() {
 
         <div className="card">
           <h2>তালিকা ({db.customers.length})</h2>
-          {error && <p className="err">{error}</p>}
           {db.customers.length === 0 ? (
             <div className="empty">এখনো কাস্টমার নেই</div>
           ) : (

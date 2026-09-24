@@ -1,79 +1,162 @@
-# বাইক পার্টস হিসাব
+# Bike Parts Management
 
-বাংলাদেশের বাইক পার্টস দোকানের জন্য স্টক, সিরিয়াল/QR ট্র্যাকিং, কেনা–বিক্রি ও রিটার্ন ম্যানেজমেন্ট ওয়েব অ্যাপ।
+**A shop management web app for motorcycle spare-parts stores in Bangladesh.**
 
-## ফিচার
+Built so a non-technical shop owner can run day-to-day business on a laptop or phone — in Bangla — without buying expensive POS software or SMS packages.
 
-- **কিনলাম** — সাপ্লায়ার থেকে স্টক; সিরিয়ালাইজড পার্টে অটো QR কোড
-- **বিক্রি** — POS + ক্যাশমেমো প্রিন্ট
-- **স্টক** — ব্র্যান্ড/মডেল/ক্যাটাগরি ফিল্টার, কম স্টক অ্যালার্ট
-- **খুঁজো** — সিরিয়াল বা OEM নম্বর দিয়ে পুরো হিস্ট্রি
-- **রিটার্ন** — সিরিয়াল মিল যাচাই
-- **সিড ডেটা** — Hero ও Bajaj জনপ্রিয় মডেল + ফাস্ট-মুভিং পার্টস
-- UI **বাংলায়**, বড় বাটন — নন-টেক দোকানদারদের জন্য
+**Live demo:** [bike-parts-management.netlify.app](https://bike-parts-management.netlify.app)
 
-## লোকাল চালানো
+---
+
+## The problem (why this exists)
+
+In Bangladesh, most motorcycle parts shops still run on:
+
+- Paper notebooks or messy Excel sheets  
+- WhatsApp photos of invoices  
+- Memory (“I think we have three CDIs left…”)  
+
+That leads to **wrong stock counts**, **lost serial numbers**, **no clear purchase/sale history**, and **hard returns** when a customer brings a part back.
+
+Generic accounting tools are often in English, desktop-only, or too complex for a counter shop. This project targets that **niche**: one shop owner, Bangla-first UI, parts catalog (Hero / Bajaj–style fast movers), and inventory that matches how these shops actually buy and sell.
+
+---
+
+## Who it’s for
+
+| Audience | What they get |
+|----------|----------------|
+| **Shop owners** | Buy stock, sell with a printable memo, see what’s low, find a part by serial/OEM |
+| **Recruiters / reviewers** | A real product demo: login → shop → stock → sale → charts, with each email = its own shop |
+| **Developers** | Free-tier full stack (see below) you can clone and run |
+
+---
+
+## What the product does
+
+Plain-language feature map:
+
+| In the app | Business meaning |
+|------------|------------------|
+| **কিনলাম (Purchase)** | Record stock received from a supplier; serialized parts get unique codes (like IMEI for parts) |
+| **বিক্রি (Sale)** | Counter sale + printable cash memo |
+| **স্টক (Stock)** | Browse inventory (list or grid), filter by brand/model/category, spot low / empty stock |
+| **খুঁজো (Lookup)** | Find a part by serial or OEM number and see its history |
+| **রিটার্ন (Return)** | Take a part back with serial checks where needed |
+| **Dashboard** | Today’s sales, stock value, low-stock alerts, simple charts |
+| **Customers / suppliers** | Keep contacts used on sales and purchases |
+| **Labels** | Print or view codes for serialized units |
+
+**Privacy model:** one email login → one shop. Shop A cannot see Shop B’s stock or sales. That isolation is enforced in the database (not just “hidden in the UI”).
+
+**Cost model:** designed to run on **free tiers** only — no paid SMS OTP, no paid email SaaS required.
+
+---
+
+## Tech stack (simple explanation)
+
+Think of the product as three layers:
+
+```
+[ Phone / laptop browser ]
+        ↓
+[ Web app — screens & shop logic ]
+        ↓
+[ Cloud login + database — each shop’s private data ]
+```
+
+| Layer | Technology | In plain English |
+|-------|------------|------------------|
+| Interface | **React** + **TypeScript** + **Vite** | Modern web app UI; TypeScript reduces bugs; Vite builds it quickly |
+| Navigation | **React Router** | Different pages (stock, sale, settings) without reloading the whole site |
+| Login | **Supabase Auth** (email OTP) | User gets a 6-digit code by email — no SMS fees |
+| Database | **Supabase Postgres** + **RLS** | Cloud database; “row level security” means each shop only reads its own rows |
+| Hosting | **Netlify** (from **GitHub**) | Public website URL; free hosting for this demo |
+| Email send | **Gmail App Password SMTP** | Shop/project uses the owner’s Gmail to send OTP mail (still free-tier friendly) |
+| Language / UX | Bangla UI, large taps, desktop sidebar + phone bottom nav | Built for shop counters, not for developers |
+
+**Not used (on purpose):** paid SMS (Twilio), paid email APIs, native App Store apps — kept out of scope so the demo stays $0 beyond free cloud quotas.
+
+---
+
+## Scope of this project
+
+**In scope today**
+
+- Multi-shop (multi-tenant) cloud data with email login  
+- Purchase → stock → sale → return loop  
+- Shared parts catalog + per-shop quantities and prices  
+- Bangla-first UX for desktop and phone  
+- Production deploy on Netlify + Supabase free tier  
+
+**Out of scope (for now)**
+
+- Staff roles / multi-branch chains  
+- Native iOS/Android store apps  
+- Paid SMS login  
+- Full accounting/tax suite  
+
+Progress notes for builders: [`docs/STATUS.md`](docs/STATUS.md) · roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md)
+
+---
+
+## How parts are tracked
+
+Shops don’t treat every item the same way:
+
+| Mode | Examples | Behavior |
+|------|----------|----------|
+| Serialized | CDI, battery, speedometer | Each unit gets a unique code |
+| Optional serial | Headlight, shock | Code only if you want it |
+| Quantity only | Oil, bulbs, cables | Just count (pcs / bottles) |
+
+---
+
+## Quick demo script (for a recruiter walkthrough)
+
+1. Open the [live site](https://bike-parts-management.netlify.app).  
+2. Log in with **email A** → enter the OTP from email → name the shop → add a supplier → **কিনলাম** (receive stock) → **বিক্রি** (sale) → check the home dashboard charts.  
+3. Log out → log in with **email B** → confirm you **do not** see email A’s stock (separate shop).  
+4. Try the same flows on a **phone** (bottom menu) and a **laptop** (sidebar).
+
+---
+
+## Run locally (developers)
 
 ```bash
 npm install
 npm run dev
 ```
 
-Supabase সেট থাকলে লগইন **ইমেইল OTP** (ফ্রি, SMS নেই)। প্রতিটি ইমেইলের দোকানের ডাটা আলাদা। প্রোডাকশনে env না থাকলে অ্যাপ চালু হবে না (ডেমো ফলব্যাক নেই)। শুধু `npm run dev`-এ localStorage ডেমো চলে।
+With Supabase configured, login uses **email OTP**. Without cloud env vars, production builds fail closed (no fake demo shop online). Local `npm run dev` can still use a local demo path for UI work.
 
-## Netlify ডিপ্লয়
+### Deploy notes
 
-লাইভ সাইট: https://bike-parts-management.netlify.app  
+- Live: https://bike-parts-management.netlify.app  
+- Full steps: [`docs/DEPLOY.md`](docs/DEPLOY.md)  
+- Netlify env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`  
+- Database: run `supabase/setup.sql` once in the Supabase SQL editor  
 
-বিস্তারিত ধাপ: [`docs/DEPLOY.md`](docs/DEPLOY.md)
+Optional checks:
 
-GitHub `main`-এ পুশ করলে Netlify বিল্ড করে। `netlify.toml`-এ কমান্ড `npm run build`, পাবলিশ `dist`। `.env` গিটে যায় না।
-
-Netlify → Environment variables:
-
-```
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
-```
-
-তারপর Clear cache and deploy। Supabase Auth URL-এ `https://bike-parts-management.netlify.app` যোগ করুন।
-
-## Supabase (ইমেইল OTP, আলাদা দোকান)
-
-1. [Supabase](https://supabase.com) প্রজেক্ট তৈরি করুন
-2. SQL Editor-এ শুধু `supabase/setup.sql` একবার রান করুন
-3. Authentication → URL Configuration-এ সাইটের ঠিকানা দিন
-4. Email Templates → Magic Link-এ `{{ .Token }}` রাখুন, যাতে ৬ সংখ্যার কোড যায়
-5. `.env`-এ সেট করুন:
-
-```
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
+```bash
+npm run check:isolation   # schema/RLS review helper
+npm run build             # production build
 ```
 
-প্রথম সফল লগইনে ওই ইমেইলের জন্য একটা দোকান তৈরি হয়। স্টক, কেনা, বিক্রি Row Level Security দিয়ে শুধু সেই দোকানে থাকে। মোবাইল SMS ব্যবহার হয় না।
+---
 
-## ডেমো স্ক্রিপ্ট (রিক্রুটার / শোকেস)
+## Project at a glance
 
-1. ইমেইল A দিয়ে OTP লগইন → দোকানের নাম → সাপ্লায়ার → কিনলাম → বিক্রি → আজ ড্যাশবোর্ডে গ্রাফ  
-2. বের হয়ে ইমেইল B দিয়ে লগইন → A-এর স্টক দেখা যাবে না (আলাদা দোকান)  
-3. ল্যাপটপ (সাইডবার) ও ফোন (নিচের মেনু) দুটোতেই চেক করুন  
+| | |
+|--|--|
+| **Niche** | Bangladesh motorcycle spare-parts retail |
+| **Problem** | Paper/Excel chaos → wrong stock, weak serial tracking, no clean counter workflow |
+| **Solution** | Bangla web app: buy, sell, stock, lookup, return — one shop per login |
+| **Stack** | React, TypeScript, Vite, Supabase, Netlify |
+| **Constraint** | Free-tier only (no paid SMS / email SaaS required) |
 
-অফলাইন স্কিমা চেক (ফ্রি): `npm run check:isolation`  
-লাইভ দুই-দোকান স্মোক: `npm run smoke:isolation` (বিস্তারিত [`docs/DEPLOY.md`](docs/DEPLOY.md))
+---
 
-## পার্টস ট্র্যাকিং
-
-| মোড | উদাহরণ | আচরণ |
-|-----|--------|--------|
-| serialized | CDI, ব্যাটারি, স্পিডো | প্রতি ইউনিটে ইউনিক কোড (IMEI-এর মতো) |
-| optional_serial | হেডলাইট, শক | চাইলে কোড |
-| qty_only | অয়েল, বাল্ব, কেবল | শুধু পরিমাণ |
-
-## টেক স্ট্যাক
-
-- Vite + React + TypeScript
-- React Router
-- Netlify hosting (free)
-- Supabase free (Postgres + Auth + RLS)
-- Agent progress: `docs/STATUS.md`, `docs/ROADMAP.md`, `AGENTS.md`
+Built as a portfolio-ready product demo: real users, real isolation, and a counter UX shop owners can understand without training manuals.
+

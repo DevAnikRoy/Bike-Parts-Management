@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { ShopLogo } from './ShopLogo'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
 
@@ -44,10 +45,12 @@ export function Layout() {
       {user && (
         <aside className="sidebar">
           <div className="sidebar-brand">
-            <div className="brand-mark" aria-hidden />
+            <ShopLogo svg={shop.logo_svg} name={shop.name} size="md" />
             <div>
               <div className="brand-name">{shop.name || 'বাইক পার্টস'}</div>
-              <div className="brand-sub">হিসাব ও স্টক</div>
+              <div className="brand-sub">
+                {shop.address?.trim() ? shop.address : 'হিসাব ও স্টক'}
+              </div>
             </div>
           </div>
 
@@ -87,9 +90,14 @@ export function Layout() {
       <div className="main-column">
         {user && (
           <header className="mobile-topbar">
-            <div>
-              <div className="brand-name">{shop.name || 'বাইক পার্টস'}</div>
-              <div className="brand-sub">{user.name}</div>
+            <div className="mobile-topbar-brand">
+              <ShopLogo svg={shop.logo_svg} name={shop.name} size="sm" />
+              <div>
+                <div className="brand-name">{shop.name || 'বাইক পার্টস'}</div>
+                <div className="brand-sub">
+                  {shop.address?.trim() ? shop.address : user.name}
+                </div>
+              </div>
             </div>
             <button
               type="button"

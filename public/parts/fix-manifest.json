@@ -1,0 +1,87 @@
+{
+  "ok": [
+    {
+      "key": "generic",
+      "file": "generic.jpg",
+      "bytes": 56582,
+      "source": "FilePath:Motorcycle_spare_parts.jpg"
+    },
+    {
+      "key": "bulb",
+      "file": "bulb.jpg",
+      "bytes": 64106,
+      "source": "FilePath:H4_halogen_car_lamp.jpg"
+    },
+    {
+      "key": "oil-filter",
+      "file": "oil-filter.png",
+      "bytes": 57834,
+      "source": "FilePath:Oilfilter_Automotive_Internal.png"
+    },
+    {
+      "key": "clutch-plate",
+      "file": "clutch-plate.jpg",
+      "bytes": 52710,
+      "source": "FilePath:Clutch_disc_1.jpg"
+    },
+    {
+      "key": "ignition",
+      "file": "ignition.jpg",
+      "bytes": 13417,
+      "source": "FilePath:Ignition-key.jpg"
+    },
+    {
+      "key": "tank-cap",
+      "file": "tank-cap.jpg",
+      "bytes": 35647,
+      "source": "FilePath:Fuel_cap_of_old_Triumph_motorcycle_at_Quail_Motorcycle_Gathering_2015.jpg"
+    },
+    {
+      "key": "speedo-cable",
+      "file": "speedo-cable.jpg",
+      "bytes": 32571,
+      "source": "FilePath:2008-05-06_1990_Geo_Storm_GSi_speedometer_cable.jpg"
+    },
+    {
+      "key": "brake-shoe",
+      "file": "brake-shoe.jpg",
+      "bytes": 74612,
+      "source": "FilePath:Brake_shoes.jpg"
+    },
+    {
+      "key": "battery",
+      "file": "battery.jpg",
+      "bytes": 60654,
+      "source": "FilePath:Car_battery.jpg"
+    },
+    {
+      "key": "cdi",
+      "file": "cdi.jpg",
+      "bytes": 47611,
+      "source": "FilePath:Aprilia_RS_125_SP_Corsa_CDI_und_8400_Ausslasssteuergerät.jpg"
+    },
+    {
+      "key": "accelerator-cable",
+      "file": "accelerator-cable.jpg",
+      "bytes": 31280,
+      "source": "FilePath:Throttle.jpg"
+    },
+    {
+      "key": "shock",
+      "file": "shock.jpg",
+      "bytes": 93253,
+      "source": "FilePath:Plunger_suspension.jpg"
+    },
+    {
+      "key": "speedometer",
+      "file": "speedometer.jpg",
+      "bytes": 47845,
+      "source": "FilePath:Fuel_gauge_and_speedometer_of_a_Rex_RS_500_scooter_with_50_ccm_(cropped).jpg"
+    }
+  ],
+  "failed": [
+    "air-filter",
+    "clutch-cable"
+  ],
+  "at": "2026-09-24T06:33:30.483Z"
+}

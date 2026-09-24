@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
+import { PartThumb } from '../components/PartThumb'
 import { useAuth } from '../lib/auth'
 import { useData } from '../lib/data'
 import { stockValue } from '../lib/queries'
 import { formatTk } from '../lib/format'
+import { useToast } from '../lib/toast'
 
 export function ReturnPage() {
   const { user } = useAuth()
   const { db, processReturn } = useData()
+  const notify = useToast()
   const [mode, setMode] = useState<'serial' | 'qty'>('serial')
   const [code, setCode] = useState('')
   const [partId, setPartId] = useState('')
   const [qty, setQty] = useState(1)
   const [reason, setReason] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [doneBanner, setDoneBanner] = useState('')
 
   useEffect(() => {
     const pending = sessionStorage.getItem('bpm_return_code')
@@ -28,31 +30,46 @@ export function ReturnPage() {
 
   async function submit() {
     if (!user) return
-    setError('')
-    setSuccess('')
+    setDoneBanner('')
     try {
       if (mode === 'serial') {
+        if (!code.trim()) {
+          notify.error('সিরিয়াল/কোড দিন')
+          return
+        }
         const rec = await processReturn({
           unique_code: code.trim(),
           reason,
           user_id: user.id,
         })
-        setSuccess(`রিটার্ন গ্রহণ হয়েছে ✓ কোড মিলেছে · ${rec.unique_code}`)
+        const msg = `রিটার্ন গ্রহণ হয়েছে · কোড ${rec.unique_code}`
+        setDoneBanner(msg)
+        notify.success(msg)
         setCode('')
       } else {
+        if (!partId) {
+          notify.error('পার্ট বাছুন')
+          return
+        }
+        if (!Number.isFinite(qty) || qty < 1) {
+          notify.error('পরিমাণ ১ বা তার বেশি হতে হবে')
+          return
+        }
         await processReturn({
           part_id: partId,
           qty,
           reason,
           user_id: user.id,
         })
-        setSuccess(`রিটার্ন গ্রহণ হয়েছে ✓ ${qty} পিস স্টকে ফিরেছে`)
+        const msg = `রিটার্ন গ্রহণ হয়েছে · ${qty} পিস স্টকে ফিরেছে`
+        setDoneBanner(msg)
+        notify.success(msg)
         setPartId('')
         setQty(1)
       }
       setReason('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'রিটার্ন ব্যর্থ')
+      notify.fromError(err, 'রিটার্ন হয়নি')
     }
   }
 
@@ -60,9 +77,9 @@ export function ReturnPage() {
     <>
       <PageHeader title="রিটার্ন" />
 
-      {success && (
+      {doneBanner && (
         <div className="success-banner flow-success">
-          <strong>{success}</strong>
+          <strong>{doneBanner}</strong>
           <div className="row">
             <Link to="/stock" className="btn ghost">
               স্টক দেখুন
@@ -140,9 +157,7 @@ export function ReturnPage() {
           />
         </div>
 
-        {error && <p className="err">{error}</p>}
-
-        <button type="button" className="btn block" onClick={submit}>
+        <button type="button" className="btn block" onClick={() => void submit()}>
           রিটার্ন গ্রহণ করুন
         </button>
       </div>
@@ -160,13 +175,16 @@ export function ReturnPage() {
                 const part = db.parts.find((p) => p.id === r.part_id)
                 return (
                   <div key={r.id} className="list-item">
-                    <div>
-                      <strong>{part?.name_bn ?? r.unique_code ?? 'পার্ট'}</strong>
-                      <span className="muted">
-                        {r.unique_code ?? `qty ${r.qty}`} ·{' '}
-                        {r.matched ? 'মিলেছে' : 'মেলেনি'}
-                        {r.reason ? ` · ${r.reason}` : ''}
-                      </span>
+                    <div className="part-row">
+                      {part && <PartThumb name={part.name} label={part.name_bn} size="sm" />}
+                      <div>
+                        <strong>{part?.name_bn ?? r.unique_code ?? 'পার্ট'}</strong>
+                        <span className="muted">
+                          {r.unique_code ?? `qty ${r.qty}`} ·{' '}
+                          {r.matched ? 'মিলেছে' : 'মেলেনি'}
+                          {r.reason ? ` · ${r.reason}` : ''}
+                        </span>
+                      </div>
                     </div>
                     <span className={`badge ${r.matched ? '' : 'danger'}`}>
                       {r.matched ? 'OK' : 'না'}

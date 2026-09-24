@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { SalesLineChart, TopPartsBarChart } from '../components/Charts'
+import { PartThumb } from '../components/PartThumb'
 import { SetupWizard } from '../components/SetupWizard'
 import { useData } from '../lib/data'
 import { formatDate, formatTk } from '../lib/format'
@@ -116,11 +117,14 @@ export function HomePage() {
             <div className="list">
               {low.slice(0, 6).map(({ part, balance }) => (
                 <div key={part.id} className="list-item">
-                  <div>
-                    <strong>{part.name_bn}</strong>
-                    <span className="muted">
-                      আছে {balance.qty} · ন্যূনতম {part.reorder_level}
-                    </span>
+                  <div className="part-row">
+                    <PartThumb name={part.name} label={part.name_bn} size="sm" />
+                    <div>
+                      <strong>{part.name_bn}</strong>
+                      <span className="muted">
+                        আছে {balance.qty} · ন্যূনতম {part.reorder_level}
+                      </span>
+                    </div>
                   </div>
                   <Link to="/purchase" className="btn ghost">
                     কিনুন

@@ -1,0 +1,127 @@
+{
+  "ok": [
+    {
+      "key": "spark-plug",
+      "file": "spark-plug.jpg",
+      "bytes": 49478,
+      "source": "commons:File:Spark_plug.jpg",
+      "via": "commons"
+    },
+    {
+      "key": "brake-pad",
+      "file": "brake-pad.jpg",
+      "bytes": 55030,
+      "source": "commons:File:Brake_pad.jpg",
+      "via": "commons"
+    },
+    {
+      "key": "brake-shoe",
+      "file": "brake-shoe.jpg",
+      "bytes": 74612,
+      "source": "commons:File:Brake_shoes.jpg",
+      "via": "commons"
+    },
+    {
+      "key": "chain-kit",
+      "file": "chain-kit.jpg",
+      "bytes": 26706,
+      "source": "commons:File:Motorcycle_chain.jpg",
+      "via": "commons"
+    },
+    {
+      "key": "headlight",
+      "file": "headlight.jpg",
+      "bytes": 87573,
+      "source": "https://images.unsplash.com/photo-1755585190999-2c8b62c03a49",
+      "via": "unsplash"
+    },
+    {
+      "key": "engine-oil",
+      "file": "engine-oil.jpg",
+      "bytes": 80052,
+      "source": "https://images.unsplash.com/photo-1746014994978-4591e956d2d0",
+      "via": "unsplash"
+    },
+    {
+      "key": "fork-oil",
+      "file": "fork-oil.jpg",
+      "bytes": 38755,
+      "source": "commons:File:Yamaha-fork.jpg",
+      "via": "commons"
+    },
+    {
+      "key": "clutch-plate",
+      "file": "clutch-plate.jpg",
+      "bytes": 52710,
+      "source": "commons:File:Clutch_disc_1.jpg",
+      "via": "commons"
+    },
+    {
+      "key": "shock",
+      "file": "shock.jpg",
+      "bytes": 93253,
+      "source": "commons:File:Plunger_suspension.jpg",
+      "via": "commons"
+    },
+    {
+      "key": "speedometer",
+      "file": "speedometer.jpg",
+      "bytes": 47845,
+      "source": "commons:File:Fuel_gauge_and_speedometer_of_a_Rex_RS_500_scooter_with_50_ccm_(cropped).jpg",
+      "via": "commons"
+    },
+    {
+      "key": "side-cover",
+      "file": "side-cover.jpg",
+      "bytes": 40471,
+      "source": "https://images.unsplash.com/photo-1558981359-219d6364c9c8",
+      "via": "unsplash"
+    }
+  ],
+  "failed": [
+    {
+      "key": "battery",
+      "error": "all sources failed"
+    },
+    {
+      "key": "air-filter",
+      "error": "all sources failed"
+    },
+    {
+      "key": "oil-filter",
+      "error": "all sources failed"
+    },
+    {
+      "key": "bulb",
+      "error": "all sources failed"
+    },
+    {
+      "key": "ignition",
+      "error": "all sources failed"
+    },
+    {
+      "key": "cdi",
+      "error": "all sources failed"
+    },
+    {
+      "key": "clutch-cable",
+      "error": "all sources failed"
+    },
+    {
+      "key": "accelerator-cable",
+      "error": "all sources failed"
+    },
+    {
+      "key": "speedo-cable",
+      "error": "all sources failed"
+    },
+    {
+      "key": "tank-cap",
+      "error": "all sources failed"
+    },
+    {
+      "key": "generic",
+      "error": "all sources failed"
+    }
+  ]
+}

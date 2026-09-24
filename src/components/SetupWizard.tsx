@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../lib/data'
+import { useToast } from '../lib/toast'
 
 export function SetupWizard() {
   const { db, updateShop, addSupplier } = useData()
+  const notify = useToast()
   const [step, setStep] = useState(() => {
     if (!db.shop.address.trim() && db.shop.name === 'আমার বাইক পার্টস') return 0
     if (db.suppliers.length === 0) return 1
@@ -15,14 +17,12 @@ export function SetupWizard() {
   const [phone, setPhone] = useState(db.shop.phone)
   const [supplierName, setSupplierName] = useState('')
   const [supplierPhone, setSupplierPhone] = useState('')
-  const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
   async function saveShop(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     if (!name.trim()) {
-      setError('দোকানের নাম দিন')
+      notify.error('দোকানের নাম দিন')
       return
     }
     setBusy(true)
@@ -33,9 +33,10 @@ export function SetupWizard() {
         phone: phone.trim(),
         invoice_prefix: db.shop.invoice_prefix || 'BPM',
       })
+      notify.success('দোকানের নাম সেভ হয়েছে')
       setStep(db.suppliers.length === 0 ? 1 : db.purchases.length === 0 ? 2 : 3)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'সেভ হয়নি')
+      notify.fromError(err, 'সেভ হয়নি')
     } finally {
       setBusy(false)
     }
@@ -43,9 +44,8 @@ export function SetupWizard() {
 
   async function saveSupplier(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
     if (!supplierName.trim() || !supplierPhone.trim()) {
-      setError('নাম ও ফোন লাগবে')
+      notify.error('নাম ও ফোন লাগবে')
       return
     }
     setBusy(true)
@@ -56,9 +56,10 @@ export function SetupWizard() {
         address: '',
         note: '',
       })
+      notify.success('সাপ্লায়ার যোগ হয়েছে')
       setStep(2)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'সেভ হয়নি')
+      notify.fromError(err, 'সেভ হয়নি')
     } finally {
       setBusy(false)
     }
@@ -116,7 +117,6 @@ export function SetupWizard() {
               placeholder="০১৭…"
             />
           </div>
-          {error && <p className="err">{error}</p>}
           <button type="submit" className="btn block" disabled={busy}>
             {busy ? 'সেভ হচ্ছে...' : 'পরের ধাপ'}
           </button>
@@ -145,7 +145,6 @@ export function SetupWizard() {
               inputMode="tel"
             />
           </div>
-          {error && <p className="err">{error}</p>}
           <button type="submit" className="btn block" disabled={busy}>
             {busy ? 'সেভ হচ্ছে...' : 'পরের ধাপ'}
           </button>
