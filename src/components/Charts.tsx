@@ -4,8 +4,8 @@ interface Point {
 }
 
 export function SalesLineChart({ data }: { data: Point[] }) {
-  const w = 560
-  const h = 180
+  const w = 640
+  const h = 240
   const pad = { t: 16, r: 12, b: 28, l: 8 }
   const max = Math.max(...data.map((d) => d.value), 1)
   const innerW = w - pad.l - pad.r
