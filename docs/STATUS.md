@@ -80,3 +80,4 @@
 - 2026-09-24 — README rewritten in English for recruiters: niche, problem, plain-language stack & scope
 - 2026-09-24 — Larger stock photos (xl); shop SVG logo in Settings → sidebar/topbar + sale memo; migration `007_shop_logo.sql`
 - 2026-09-24 — Rate limits: client OTP/mutations + DB `assert_shop_rate` (`008_rate_limit.sql`); login cooldown UI
+- 2026-09-25 — Home «সাম্প্রতিক মেমো» clickable → popup with full invoice details + print
