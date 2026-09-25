@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SalesLineChart, TopPartsBarChart } from '../components/Charts'
+import { DashboardInsight, type InsightKind } from '../components/DashboardInsight'
 import { MemoModal } from '../components/MemoModal'
 import { PartThumb } from '../components/PartThumb'
 import { SetupWizard } from '../components/SetupWizard'
@@ -14,12 +15,16 @@ import {
   stockValue,
   todaySalesTotal,
   topSoldParts,
+  type SalesPeriodId,
 } from '../lib/queries'
 import type { Sale } from '../lib/types'
+
+type InsightState = { kind: InsightKind; period?: SalesPeriodId } | null
 
 export function HomePage() {
   const { db } = useData()
   const [openSale, setOpenSale] = useState<Sale | null>(null)
+  const [insight, setInsight] = useState<InsightState>(null)
   const fresh = isFreshShop(db)
   const needsShopName =
     fresh && (!db.shop.address.trim() || db.shop.name === 'আমার বাইক পার্টস')
@@ -56,22 +61,42 @@ export function HomePage() {
       </header>
 
       <div className="kpi-grid">
-        <div className="kpi">
+        <button
+          type="button"
+          className="kpi kpi-btn"
+          onClick={() => setInsight({ kind: 'sales', period: 'today' })}
+        >
           <span className="kpi-label">আজকের বিক্রি</span>
           <strong className="kpi-value">{formatTk(today)}</strong>
-        </div>
-        <div className="kpi">
+          <span className="kpi-hint">বিস্তারিত দেখুন</span>
+        </button>
+        <button
+          type="button"
+          className="kpi kpi-btn"
+          onClick={() => setInsight({ kind: 'sales', period: 'this_month' })}
+        >
           <span className="kpi-label">এই মাস</span>
           <strong className="kpi-value">{formatTk(month)}</strong>
-        </div>
-        <div className="kpi">
+          <span className="kpi-hint">বিস্তারিত দেখুন</span>
+        </button>
+        <button
+          type="button"
+          className="kpi kpi-btn"
+          onClick={() => setInsight({ kind: 'stock' })}
+        >
           <span className="kpi-label">স্টকের কেনা মূল্য</span>
           <strong className="kpi-value">{formatTk(value)}</strong>
-        </div>
-        <div className={`kpi${low.length ? ' warn' : ''}`}>
+          <span className="kpi-hint">পার্ট অনুযায়ী</span>
+        </button>
+        <button
+          type="button"
+          className={`kpi kpi-btn${low.length ? ' warn' : ''}`}
+          onClick={() => setInsight({ kind: 'low' })}
+        >
           <span className="kpi-label">কম স্টক</span>
           <strong className="kpi-value">{low.length}</strong>
-        </div>
+          <span className="kpi-hint">তালিকা দেখুন</span>
+        </button>
       </div>
 
       <div className="dash-actions">
@@ -89,9 +114,22 @@ export function HomePage() {
         <section className="card chart-card">
           <div className="card-head">
             <h2>গত ৭ দিনের বিক্রি</h2>
-            <span className="muted">টাকায়</span>
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => setInsight({ kind: 'sales', period: 'last_7' })}
+            >
+              বিস্তারিত
+            </button>
           </div>
-          <SalesLineChart data={week.map((d) => ({ label: d.label, value: d.total }))} />
+          <button
+            type="button"
+            className="chart-hit"
+            onClick={() => setInsight({ kind: 'sales', period: 'last_7' })}
+            aria-label="গত ৭ দিনের বিক্রির বিস্তারিত"
+          >
+            <SalesLineChart data={week.map((d) => ({ label: d.label, value: d.total }))} />
+          </button>
         </section>
 
         <section className="card chart-card">
@@ -111,9 +149,13 @@ export function HomePage() {
         <section className="card">
           <div className="card-head">
             <h2>কম স্টক</h2>
-            <Link to="/stock" className="text-link">
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => setInsight({ kind: 'low' })}
+            >
               সব দেখুন
-            </Link>
+            </button>
           </div>
           {low.length === 0 ? (
             <div className="empty compact">সব পার্ট ঠিক আছে</div>
@@ -168,6 +210,15 @@ export function HomePage() {
           )}
         </section>
       </div>
+
+      {insight ? (
+        <DashboardInsight
+          kind={insight.kind}
+          db={db}
+          initialPeriod={insight.period ?? 'today'}
+          onClose={() => setInsight(null)}
+        />
+      ) : null}
 
       {openSale ? (
         <MemoModal sale={openSale} db={db} onClose={() => setOpenSale(null)} />

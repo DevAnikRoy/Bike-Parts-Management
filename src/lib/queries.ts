@@ -105,6 +105,162 @@ export function topSoldParts(db: AppDatabase, limit = 10) {
     }))
 }
 
+/** YYYY-MM-DD for a Date (local). */
+export function toDayKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+export function parseDayKey(key: string) {
+  const [y, m, day] = key.split('-').map(Number)
+  const d = new Date(y, (m || 1) - 1, day || 1, 12, 0, 0, 0)
+  return d
+}
+
+export function shiftDayKey(key: string, deltaDays: number) {
+  const d = parseDayKey(key)
+  d.setDate(d.getDate() + deltaDays)
+  return toDayKey(d)
+}
+
+export type SalesPeriodId =
+  | 'today'
+  | 'yesterday'
+  | 'last_7'
+  | 'last_30'
+  | 'this_month'
+  | 'last_6_months'
+  | 'last_year'
+  | 'day'
+
+export const SALES_PERIODS: { id: SalesPeriodId; label: string }[] = [
+  { id: 'today', label: 'আজ' },
+  { id: 'yesterday', label: 'গতকাল' },
+  { id: 'last_7', label: '৭ দিন' },
+  { id: 'last_30', label: '৩০ দিন' },
+  { id: 'this_month', label: 'এই মাস' },
+  { id: 'last_6_months', label: '৬ মাস' },
+  { id: 'last_year', label: '১ বছর' },
+  { id: 'day', label: 'দিন বাছাই' },
+]
+
+function startOfLocalDay(d: Date) {
+  const x = new Date(d)
+  x.setHours(0, 0, 0, 0)
+  return x
+}
+
+function endOfLocalDay(d: Date) {
+  const x = new Date(d)
+  x.setHours(23, 59, 59, 999)
+  return x
+}
+
+export function rangeForSalesPeriod(
+  id: SalesPeriodId,
+  dayKey?: string,
+): { start: Date; end: Date; title: string } {
+  const now = new Date()
+  if (id === 'today') {
+    return {
+      start: startOfLocalDay(now),
+      end: endOfLocalDay(now),
+      title: 'আজকের বিক্রি',
+    }
+  }
+  if (id === 'yesterday') {
+    const y = new Date(now)
+    y.setDate(y.getDate() - 1)
+    return {
+      start: startOfLocalDay(y),
+      end: endOfLocalDay(y),
+      title: 'গতকালের বিক্রি',
+    }
+  }
+  if (id === 'day') {
+    const key = dayKey || toDayKey(now)
+    const d = parseDayKey(key)
+    return {
+      start: startOfLocalDay(d),
+      end: endOfLocalDay(d),
+      title: 'দিনের বিক্রি',
+    }
+  }
+  if (id === 'last_7') {
+    const start = startOfLocalDay(now)
+    start.setDate(start.getDate() - 6)
+    return { start, end: endOfLocalDay(now), title: 'গত ৭ দিনের বিক্রি' }
+  }
+  if (id === 'last_30') {
+    const start = startOfLocalDay(now)
+    start.setDate(start.getDate() - 29)
+    return { start, end: endOfLocalDay(now), title: 'গত ৩০ দিনের বিক্রি' }
+  }
+  if (id === 'this_month') {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+    return { start, end: endOfLocalDay(now), title: 'এই মাসের বিক্রি' }
+  }
+  if (id === 'last_6_months') {
+    const start = startOfLocalDay(now)
+    start.setMonth(start.getMonth() - 6)
+    return { start, end: endOfLocalDay(now), title: 'গত ৬ মাসের বিক্রি' }
+  }
+  // last_year
+  const start = startOfLocalDay(now)
+  start.setFullYear(start.getFullYear() - 1)
+  return { start, end: endOfLocalDay(now), title: 'গত ১ বছরের বিক্রি' }
+}
+
+export function salesInRange(db: AppDatabase, start: Date, end: Date): Sale[] {
+  const a = start.getTime()
+  const b = end.getTime()
+  return db.sales
+    .filter((s) => {
+      const t = new Date(s.created_at).getTime()
+      return t >= a && t <= b
+    })
+    .sort((x, y) => (x.created_at < y.created_at ? 1 : -1))
+}
+
+export function salesNetTotal(sales: Sale[]) {
+  return sales.reduce((sum, s) => sum + (s.total - s.discount), 0)
+}
+
+export function topPartsInSales(db: AppDatabase, sales: Sale[], limit = 8) {
+  const ids = new Set(sales.map((s) => s.id))
+  const map = new Map<string, { qty: number; amount: number }>()
+  for (const line of db.sale_lines) {
+    if (!ids.has(line.sale_id)) continue
+    const cur = map.get(line.part_id) ?? { qty: 0, amount: 0 }
+    cur.qty += line.qty
+    cur.amount += line.line_total
+    map.set(line.part_id, cur)
+  }
+  return [...map.entries()]
+    .sort((a, b) => b[1].amount - a[1].amount)
+    .slice(0, limit)
+    .map(([part_id, v]) => ({
+      part: db.parts.find((p) => p.id === part_id),
+      qty: v.qty,
+      amount: v.amount,
+    }))
+}
+
+export function stockValueBreakdown(db: AppDatabase) {
+  return db.stock_balances
+    .map((b) => {
+      const part = db.parts.find((p) => p.id === b.part_id)
+      if (!part || b.qty <= 0) return null
+      const line = b.qty * b.avg_buy_price
+      return { part, balance: b, line }
+    })
+    .filter(Boolean)
+    .sort((a, b) => b!.line - a!.line) as {
+    part: Part
+    balance: StockBalance
+    line: number
+  }[]
+}
+
 export function findUnitByCode(db: AppDatabase, code: string): StockUnit | null {
   const q = code.trim().toLowerCase()
   if (!q) return null

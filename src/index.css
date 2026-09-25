@@ -440,6 +440,153 @@ textarea {
   line-height: 1.15;
 }
 
+.kpi-btn {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.12s ease, transform 0.1s ease;
+}
+
+.kpi-btn:hover {
+  border-color: #9bbba8;
+}
+
+.kpi-btn:active {
+  transform: scale(0.99);
+}
+
+.kpi-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.kpi-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.chart-hit {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.insight-panel {
+  width: min(640px, 100%);
+  max-height: min(92vh, 900px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.insight-body {
+  overflow: auto;
+  padding: 4px 4px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.insight-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.insight-chip {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #f4f8f5;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.insight-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.insight-day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.insight-day-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  flex: 1;
+  min-width: 140px;
+}
+
+.insight-date {
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: #fff;
+}
+
+.insight-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: #f3faf5;
+  border: 1px solid var(--border);
+}
+
+.insight-summary span {
+  display: block;
+  font-size: 0.78rem;
+}
+
+.insight-summary strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.insight-money {
+  color: var(--primary-dark);
+}
+
+.insight-section h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.insight-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
 .dash-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

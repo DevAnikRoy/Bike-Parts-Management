@@ -13,6 +13,21 @@ export function formatDate(iso: string) {
   }
 }
 
+/** Calendar day label, e.g. ২৫ সেপ্টেম্বর ২০২৬ */
+export function formatDayBn(isoOrKey: string) {
+  try {
+    const d = isoOrKey.length <= 10 ? new Date(`${isoOrKey}T12:00:00`) : new Date(isoOrKey)
+    return d.toLocaleDateString('bn-BD', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  } catch {
+    return isoOrKey
+  }
+}
+
 export function statusBn(status: string) {
   const map: Record<string, string> = {
     in_stock: 'স্টকে আছে',
